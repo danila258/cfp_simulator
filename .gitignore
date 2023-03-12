@@ -2,6 +2,8 @@
 .DS_Store
 TRTIniFile
 config.txt
+.idea
+
 
 # C++ objects and libs
 *.slo

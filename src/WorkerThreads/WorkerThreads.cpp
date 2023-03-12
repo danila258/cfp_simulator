@@ -2,20 +2,56 @@
 
 std::mutex out;
 
-void threadFunction(const std::vector<dataStructure>& threadConfig)
+void threadFunction(const dataContainers& threadConfig)
 {
-    out.lock();
-    std::cout << std::this_thread::get_id() << '\n';
-    out.unlock();
+    std::deque<std::unique_ptr<customMutex>> mutexArr;
 
-    for (auto& item : threadConfig)
+    std::vector<customQueue<int>> queueArr;
+    queueArr.reserve(threadConfig.queueCount);
+
+    size_t id = 0;
+
+    for (auto& mParams : threadConfig.mutexes)
     {
-        std::lock_guard<std::mutex> lock(out);
-        std::cout << item.name << ' ' << item.count << '\n';
+        mutexArr.emplace_back(std::unique_ptr<customMutex>( new customMutex(mParams) ));
+        mutexArr.back()->_params.lock = mParams.lock;
+        mutexArr.back()->_params.id = id;
+        mutexArr.back()->_params.name += " " + std::to_string(id);
+        ++id;
+
+        if (mutexArr.back()->_params.lock)
+        {
+            mutexArr.back()->lock();
+        }
     }
 
-    std::lock_guard<std::mutex> lock(out);
-    std::cout << '\n';
+    id = 0;
+
+    for (auto& qParams : threadConfig.queue)
+    {
+        queueArr.emplace_back();
+        queueArr.back()._params = qParams;
+        queueArr.back()._params.id = id;
+        queueArr.back()._params.name += " " + std::to_string(id);
+        ++id;
+
+        for (int i = 0; i < qParams.size; ++i)
+        {
+            queueArr.back().emplace(0);
+        }
+    }
+
+    for (auto& item : mutexArr)
+    {
+        std::lock_guard<std::mutex> lock(out);
+        std::cout << std::this_thread::get_id() << ' ' << item->_params.name << '\n';
+    }
+
+    for (auto& item : queueArr)
+    {
+        std::lock_guard<std::mutex> lock(out);
+        std::cout << std::this_thread::get_id() << ' ' << item._params.name << '\n';
+    }
 }
 
 void workerThreads(const std::vector<threadConfig>& config)
@@ -24,7 +60,7 @@ void workerThreads(const std::vector<threadConfig>& config)
 
     for (auto& threadConfig : config)
     {
-        threadPool.emplace_back(threadFunction, std::ref(threadConfig.threadContent));
+        threadPool.emplace_back(threadFunction, std::ref(threadConfig.config));
     }
 
     for (size_t i = 0; i < threadPool.size(); ++i)
