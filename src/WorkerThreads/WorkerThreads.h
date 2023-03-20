@@ -1,8 +1,8 @@
 #ifndef WORKERTHREADS_H
 #define WORKERTHREADS_H
 
-#include "customMutex.h"
-#include "customQueue.h"
+#include "CustomMutex.h"
+#include "CustomQueue.h"
 #include "ConfigParser.h"
 
 #include <deque>

@@ -4,16 +4,16 @@ std::mutex out;
 
 void threadFunction(const dataContainers& threadConfig)
 {
-    std::deque<std::unique_ptr<customMutex>> mutexArr;
+    std::deque<std::unique_ptr<CustomMutex>> mutexArr;
 
-    std::vector<customQueue<int>> queueArr;
+    std::vector<CustomQueue<int>> queueArr;
     queueArr.reserve(threadConfig.queueCount);
 
     size_t id = 0;
 
     for (auto& mParams : threadConfig.mutexes)
     {
-        mutexArr.emplace_back(std::unique_ptr<customMutex>( new customMutex(mParams) ));
+        mutexArr.emplace_back(std::unique_ptr<CustomMutex>(new CustomMutex(mParams) ));
         mutexArr.back()->_params.lock = mParams.lock;
         mutexArr.back()->_params.id = id;
         mutexArr.back()->_params.name += " " + std::to_string(id);

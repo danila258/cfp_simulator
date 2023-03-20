@@ -2,8 +2,8 @@
 #define CONFIGPARSER_H
 
 #include "TRTIniFile.h"
-#include "customMutex.h"
-#include "customQueue.h"
+#include "CustomMutex.h"
+#include "CustomQueue.h"
 
 #include <vector>
 #include <array>
@@ -64,6 +64,7 @@ private:
     std::string _path;
     std::vector<threadConfig> _config;
 
+    // defines a specific parsing function for the specific section name
     const std::unordered_map<std::string, std::function<void(ConfigParser*, TRTIniFile&, std::string&, int)>>
     _functionMap = {{parser::threadSection, &ConfigParser::readThread},
                    {parser::mutexSection,   &ConfigParser::readMutex},

@@ -2,7 +2,7 @@
 #include "WorkerThreads.h"
 #include "spdlog/spdlog.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     ConfigParser config("./config.txt");
     config.printConfig();

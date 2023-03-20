@@ -12,10 +12,10 @@ struct mutexParams
 };
 
 
-class customMutex : public std::mutex
+class CustomMutex : public std::mutex
 {
 public:
-    customMutex(const mutexParams& params);
+    CustomMutex(const mutexParams& params);
 
     void lock();
     bool try_lock();
