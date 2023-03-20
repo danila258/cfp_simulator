@@ -4,7 +4,7 @@ project(cfp_simulator)
 set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(TRTIniFile)
-add_subdirectory(Lib/spdlog)
+add_subdirectory(lib/spdlog)
 add_subdirectory(ConfigParser)
 add_subdirectory(WorkerThreads)
 
