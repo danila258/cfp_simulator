@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(TRTIniFile)
 add_subdirectory(lib/spdlog)
+add_subdirectory(MainLogic)
 add_subdirectory(ConfigParser)
 add_subdirectory(WorkerThreads)
 
@@ -13,9 +14,10 @@ add_executable(${PROJECT_NAME}
               )
 
 target_link_libraries(${PROJECT_NAME} TRTIniFile)
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} MainLogic)
 target_link_libraries(${PROJECT_NAME} ConfigParser)
 target_link_libraries(${PROJECT_NAME} WorkerThreads)
-target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
 
 
 

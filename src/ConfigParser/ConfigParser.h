@@ -9,9 +9,9 @@
 #include <array>
 #include <string>
 #include <unordered_map>
-#include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <iostream>
 
 
 namespace parser
