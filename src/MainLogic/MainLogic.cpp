@@ -61,6 +61,6 @@ void MainLogic::startLogging()
     }
 
     _logger = spdlog::basic_logger_st("basic_logger", logPath + logging::logName + fileName + logging::logFormat);
-    _logger->set_pattern("[%l] %v");
+    _logger->set_pattern("[%H:%M:%S:%e] [%l] %v");
     _logger->info(fileNameCopy);
 }
