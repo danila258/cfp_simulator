@@ -1,17 +1,17 @@
 #include "WorkerThreads.h"
 
-std::mutex out;
+std::mutex loggerMutex;
 
-void threadFunction(const dataContainers& threadConfig)
+void threadFunction(const threadConfig& threadConfig, const std::shared_ptr<spdlog::logger>& logger)
 {
     std::deque<std::unique_ptr<CustomMutex>> mutexArr;
 
     std::vector<CustomQueue<int>> queueArr;
-    queueArr.reserve(threadConfig.queueCount);
+    queueArr.reserve(threadConfig.config.queueCount);
 
     size_t id = 0;
 
-    for (auto& mParams : threadConfig.mutexes)
+    for (auto& mParams : threadConfig.config.mutexes)
     {
         mutexArr.emplace_back(std::unique_ptr<CustomMutex>(new CustomMutex(mParams) ));
         mutexArr.back()->_params.lock = mParams.lock;
@@ -27,7 +27,7 @@ void threadFunction(const dataContainers& threadConfig)
 
     id = 0;
 
-    for (auto& qParams : threadConfig.queue)
+    for (auto& qParams : threadConfig.config.queue)
     {
         queueArr.emplace_back();
         queueArr.back()._params = qParams;
@@ -41,30 +41,28 @@ void threadFunction(const dataContainers& threadConfig)
         }
     }
 
+    logger->info("Create thread_{}", threadConfig.number);
+
     for (auto& item : mutexArr)
     {
-        std::lock_guard<std::mutex> lock(out);
-        std::cout << std::this_thread::get_id() << ' ' << item->_params.name << '\n';
+        std::lock_guard<std::mutex> lock(loggerMutex);
+        logger->info("thread_pid: {} Create {}", threadConfig.number, item->_params.name);
     }
 
     for (auto& item : queueArr)
     {
-        std::lock_guard<std::mutex> lock(out);
-        std::cout << std::this_thread::get_id() << ' ' << item._params.name << '\n';
+        std::lock_guard<std::mutex> lock(loggerMutex);
+        logger->info("thread_pid: {} Create {}", threadConfig.number, item._params.name);
     }
 }
 
-void workerThreads(const std::vector<threadConfig>& config)
+void workerThreads(const std::vector<threadConfig>& config, const std::shared_ptr<spdlog::logger>& logger)
 {
     std::vector<std::thread> threadPool;
 
     for (auto& threadConfig : config)
     {
-        threadPool.emplace_back(threadFunction, std::ref(threadConfig.config));
-    }
-
-    for (size_t i = 0; i < threadPool.size(); ++i)
-    {
-        threadPool[i].join();
+        threadPool.emplace_back(threadFunction, std::ref(threadConfig), std::ref(logger));
+        threadPool.back().join();
     }
 }
