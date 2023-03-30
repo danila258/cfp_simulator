@@ -36,8 +36,16 @@ void MainLogic::runThreads()
 
 void MainLogic::startLogging()
 {
+    parsingFileNameExtension();
+
+    _logger = spdlog::basic_logger_st("basic_logger", _logPath + _fileName + logging::logFormat);
+    _logger->set_pattern("[%H:%M:%S:%e:%f:%F] [%l] %v");
+    _logger->info(_fileName + _fileExtension);
+}
+
+void MainLogic::parsingFileNameExtension()
+{
     std::string logPath = _path;
-    std::string fileName;
 
     for (int i = logPath.size() - 1; i > -1; --i)
     {
@@ -46,21 +54,24 @@ void MainLogic::startLogging()
             break;
         }
 
-        fileName.push_back(logPath[i]);
+        _fileName.push_back(logPath[i]);
         logPath.pop_back();
     }
 
-    std::reverse(fileName.begin(), fileName.end());
-    std::string fileNameCopy = fileName;
+    std::reverse(_fileName.begin(), _fileName.end());
 
-    size_t dotPos = fileName.find_last_of('.');
+    size_t dotPos = _fileName.find_last_of('.');
+    _fileExtension = _fileName.substr(dotPos);
+    _fileName.erase(dotPos, _fileName.size() - dotPos);
 
-    if (dotPos != fileName.npos)
+    //clear previous log file
+    std::ofstream fileClearStream;
+    fileClearStream.open(logPath + _fileName + logging::logFormat, std::ofstream::out | std::ofstream::trunc);
+
+    if ( !fileClearStream )
     {
-        fileName.erase(dotPos, fileName.size() - dotPos);
+        throw std::runtime_error("can't clear log file");
     }
 
-    _logger = spdlog::basic_logger_st("basic_logger", logPath + logging::logName + fileName + logging::logFormat);
-    _logger->set_pattern("[%H:%M:%S:%e] [%l] %v");
-    _logger->info(fileNameCopy);
+    fileClearStream.close();
 }

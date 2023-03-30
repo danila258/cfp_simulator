@@ -13,8 +13,7 @@
 
 namespace logging
 {
-    constexpr auto logName = "log_";
-    constexpr auto logFormat = ".txt";
+    constexpr auto logFormat = ".log";
 }
 
 
@@ -26,9 +25,15 @@ public:
 private:
     void runThreads();
     void startLogging();
+    void parsingFileNameExtension();
 
     std::string _path;
+    std::string _fileName;
+    std::string _fileExtension;
+
     std::shared_ptr<spdlog::logger> _logger;
+    std::string _logPath;
 };
+
 
 #endif //MAINLOGIC_H

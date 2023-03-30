@@ -21,18 +21,27 @@ namespace parser
     constexpr auto separatorInSection = '_';
     constexpr auto mutexKey = "mutex";
     constexpr auto queueKey = "que";
+    constexpr auto timerKey = "timer";
+    constexpr auto semaphoreKey = "sem";
     constexpr auto countKey = "count";
     constexpr auto sizeKey = "size";
     constexpr auto lockKey = "lock";
     constexpr auto fullKey = "isFull";
     constexpr auto emptyKey = "isEmpty";
+    constexpr auto stateKey = "state";
 
     constexpr auto threadSection = "thread";
     constexpr auto mutexSection = "mutex";
+    constexpr auto timerSection = "timer";
+    constexpr auto semaphoreSection = "sem";
     constexpr auto queueSection = "que";
 
     // the first element must be threadSection because we can't check other sections without known threads numbers
-    constexpr std::array<const char*, 3> sections = {threadSection, mutexSection, queueSection};
+    constexpr std::array<const char*, 5> sections = {threadSection, mutexSection, queueSection, timerSection,
+                                                     semaphoreSection};
+
+    constexpr std::array<const char*, 10> allKeys = {mutexKey, queueKey, timerKey, semaphoreKey, countKey, sizeKey,
+                                                    lockKey, fullKey, emptyKey, stateKey};
 }
 
 
@@ -58,7 +67,6 @@ public:
     ConfigParser(const std::string& path);
 
     std::vector<threadConfig> getConfig();
-    void printConfig();
 
 private:
     std::string _path;
@@ -67,8 +75,8 @@ private:
     // defines a specific parsing function for the specific section name
     const std::unordered_map<std::string, std::function<void(ConfigParser*, TRTIniFile&, std::string&, int)>>
     _functionMap = {{parser::threadSection, &ConfigParser::readThread},
-                   {parser::mutexSection,   &ConfigParser::readMutex},
-                   {parser::queueSection, &ConfigParser::readQueue}};
+                    {parser::mutexSection, &ConfigParser::readMutex},
+                    {parser::queueSection, &ConfigParser::readQueue}};
 
     std::string createFileCopy();
 
@@ -78,6 +86,9 @@ private:
     void readThread(TRTIniFile& file, std::string& section, int number);
     void readMutex(TRTIniFile& file, std::string& section, int number);
     void readQueue(TRTIniFile& file, std::string& section, int number);
+    void readTimer(TRTIniFile& file, std::string& section, int number);
+    void readSemaphore(TRTIniFile& file, std::string& section, int number);
 };
+
 
 #endif // CONFIGPARSER_H

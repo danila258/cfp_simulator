@@ -4,6 +4,8 @@ std::mutex loggerMutex;
 
 void threadFunction(const threadConfig& threadConfig, const std::shared_ptr<spdlog::logger>& logger)
 {
+    logger->info("Create thread_{}", threadConfig.number);
+
     std::deque<std::unique_ptr<CustomMutex>> mutexArr;
 
     std::vector<CustomQueue<int>> queueArr;
@@ -23,6 +25,9 @@ void threadFunction(const threadConfig& threadConfig, const std::shared_ptr<spdl
         {
             mutexArr.back()->lock();
         }
+
+        std::lock_guard<std::mutex> lock(loggerMutex);
+        logger->info("thread_pid: {} Create {}", threadConfig.number, mParams.name);
     }
 
     id = 0;
@@ -39,30 +44,25 @@ void threadFunction(const threadConfig& threadConfig, const std::shared_ptr<spdl
         {
             queueArr.back().emplace(0);
         }
-    }
 
-    logger->info("Create thread_{}", threadConfig.number);
-
-    for (auto& item : mutexArr)
-    {
         std::lock_guard<std::mutex> lock(loggerMutex);
-        logger->info("thread_pid: {} Create {}", threadConfig.number, item->_params.name);
-    }
-
-    for (auto& item : queueArr)
-    {
-        std::lock_guard<std::mutex> lock(loggerMutex);
-        logger->info("thread_pid: {} Create {}", threadConfig.number, item._params.name);
+        logger->info("thread_pid: {} Create {}", threadConfig.number, qParams.name);
     }
 }
 
 void workerThreads(const std::vector<threadConfig>& config, const std::shared_ptr<spdlog::logger>& logger)
 {
-    std::vector<std::thread> threadPool;
+    std::vector<std::pair<std::thread, int>> threadPool;
 
     for (auto& threadConfig : config)
     {
-        threadPool.emplace_back(threadFunction, std::ref(threadConfig), std::ref(logger));
-        threadPool.back().join();
+        std::thread t(threadFunction, std::ref(threadConfig), std::ref(logger));
+        threadPool.emplace_back(std::move(t), threadConfig.number);
+    }
+
+    for (auto& item : threadPool)
+    {
+        item.first.join();
+        logger->info("thread_{} join", item.second);
     }
 }

@@ -67,4 +67,5 @@ void CustomQueue<T,Container>::swap(CustomQueue& other) noexcept
     std::queue<T,Container>::swap(other);
 }
 
+
 #endif //CUSTOMQUEUE_H

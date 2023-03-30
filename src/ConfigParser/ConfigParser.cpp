@@ -259,35 +259,35 @@ void ConfigParser::readQueue(TRTIniFile& file, std::string& section, int number)
     }
 }
 
-void ConfigParser::printConfig()
+void ConfigParser::readTimer(TRTIniFile& file, std::string& section, int number)
 {
-    std::ios_base::sync_with_stdio(false);
+    auto thread = std::find_if(_config.begin(), _config.end(), [&number](threadConfig& thread){
+        return thread.number == number;
+    });
 
-    auto config = getConfig();
-
-    for (auto& thread : config)
+    if (thread == _config.end())
     {
-        std::cout << "thread = " << thread.number << '\n';
-        std::cout << "mutex = " << thread.config.mutexCount << '\n';
-        std::cout << "queue = " << thread.config.queueCount << '\n';
-
-        int count = 1;
-        for (auto& mutex : thread.config.mutexes)
-        {
-            std::cout << "mutex[" << count << "] " << "lock = " << mutex.lock << '\n';
-            ++count;
-        }
-
-        count = 0;
-        for (auto& queue : thread.config.queue)
-        {
-            std::cout << "queue[" << count << "] " << "size = " << queue.size << '\n';
-            std::cout << "queue[" << count << "] " << "isEmpty = " << queue.isEmpty << '\n';
-            std::cout << "queue[" << count << "] " << "isFull = " << queue.isFull << '\n';
-            ++count;
-        }
-
-        std::cout << "---------------------------";
-        std::cout << '\n';
+        throw std::runtime_error("incorrect number in section - " + section);
     }
+
+    if ( !file.KeyExists(section, parser::timerKey) )
+    {
+        throw std::runtime_error(getKeyErrorMessage(parser::timerKey, section) );
+    }
+
+    mutexParams mParams;
+    size_t count = file.ReadInteger(section, parser::countKey, 1);
+    mParams.lock = file.ReadBool(section, parser::lockKey);
+
+    size_t threadIndex = std::distance(_config.begin(), thread);
+
+    for (int i = 0; i < count; ++i)
+    {
+        _config[threadIndex].config.mutexes.push_back(mParams);
+    }
+}
+
+void ConfigParser::readSemaphore(TRTIniFile& file, std::string& section, int number)
+{
+
 }
