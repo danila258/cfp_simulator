@@ -1,9 +1,9 @@
 #ifndef CONFIGPARSER_H
 #define CONFIGPARSER_H
 
-#include "TRTIniFile.h"
-#include "CustomMutex.h"
-#include "CustomQueue.h"
+#include "../lib/IniFile/IniFile.h"
+#include "../WorkerThreads/CustomMutex.h"
+#include "../WorkerThreads/CustomQueue.h"
 
 #include <vector>
 #include <array>
@@ -16,8 +16,6 @@
 
 namespace parser
 {
-    constexpr auto fileCopyName = "copy.txt";
-
     constexpr auto separatorInSection = '_';
     constexpr auto mutexKey = "mutex";
     constexpr auto queueKey = "que";
@@ -69,25 +67,23 @@ public:
     std::vector<threadConfig> getConfig();
 
 private:
-    std::string _path;
+    IniFile _file;
     std::vector<threadConfig> _config;
 
     // defines a specific parsing function for the specific section name
-    const std::unordered_map<std::string, std::function<void(ConfigParser*, TRTIniFile&, std::string&, int)>>
+    const std::unordered_map<std::string, std::function<void(ConfigParser*, const IniSection&, int threadNum)>>
     _functionMap = {{parser::threadSection, &ConfigParser::readThread},
                     {parser::mutexSection, &ConfigParser::readMutex},
                     {parser::queueSection, &ConfigParser::readQueue}};
 
-    std::string createFileCopy();
+    static void getNameNumber(const IniSection& section, std::string& name, int& number);
+    static std::string getKeyErrorMessage(const std::string& key, const IniSection& section);
 
-    static void getNameNumber(const std::string& section, std::string& name, int& number);
-    static std::string getKeyErrorMessage(const std::string& key, const std::string& section);
-
-    void readThread(TRTIniFile& file, std::string& section, int number);
-    void readMutex(TRTIniFile& file, std::string& section, int number);
-    void readQueue(TRTIniFile& file, std::string& section, int number);
-    void readTimer(TRTIniFile& file, std::string& section, int number);
-    void readSemaphore(TRTIniFile& file, std::string& section, int number);
+    void readThread(const IniSection& section, int threadNum);
+    void readMutex(const IniSection& section, int threadNum);
+    void readQueue(const IniSection& section, int threadNum);
+    void readTimer(const IniSection& section, int threadNum);
+    void readSemaphore(const IniSection& section, int threadNum);
 };
 
 

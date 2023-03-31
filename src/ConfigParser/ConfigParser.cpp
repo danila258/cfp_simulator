@@ -1,81 +1,37 @@
 #include "ConfigParser.h"
 
-ConfigParser::ConfigParser(const std::string& path) : _path(path)
+ConfigParser::ConfigParser(const std::string& path) : _file(path)
 {}
 
 std::vector<threadConfig> ConfigParser::getConfig()
 {
-    std::string copyPath;
-
-    try
-    {
-        copyPath = createFileCopy();
-    }
-    catch(...)
-    {
-        throw;
-    }
-
-    TRTIniFile file(copyPath, false);
-
-    if ( !file.FileExists(_path) )
-    {
-        throw std::runtime_error("config file not exist at path - " + _path);
-    }
-
-    if ( !file.CanRead(_path) )
-    {
-        throw std::runtime_error("no permission to read config file - " + _path);
-    }
-
-    if ( !file.CanWrite(_path) )
-    {
-        throw std::runtime_error("no permission to write config file - " + _path);
-    }
-
     _config.clear();
+
+    std::string name;
+    int threadNum;
 
     for (auto& knownSection : parser::sections)
     {
-        for (auto& section : file.GetSections())
+        for (auto& section : _file.sections())
         {
-            std::string name;
-            int number;
-            bool readFlag = false;
-
             try
             {
-                getNameNumber(section, name, number);
+                getNameNumber(section, name, threadNum);
 
                 if (name == knownSection)
                 {
-                    (_functionMap.find(name)->second)(this, std::ref(file), std::ref(section), number);
-                    readFlag = true;
+                    (_functionMap.find(name)->second)(this, std::ref(section), threadNum);
+                }
+                else if (std::find(parser::sections.begin(), parser::sections.end(), std::string(section)) == parser::sections.end())
+                {
+                    throw std::runtime_error("unknown section name in line: " + std::to_string(section.getLineNum()));
                 }
             }
             catch (...)
             {
                 throw;
             }
-
-            // TRTIniFile can't delete last section in file and we leave it
-            if (readFlag && file.GetSectionCount() > 1)
-            {
-                file.DeleteSection(section);
-            }
         }
-    }
-
-    if (file.GetSectionCount() > 1)
-    {
-        std::string unknownSections;
-
-        for (auto& section : file.GetSections())
-        {
-            unknownSections.append(section) += '\n';
-        }
-
-        throw std::runtime_error("unknown name in sections - " + unknownSections);
     }
 
     for (auto& thread : _config)
@@ -84,51 +40,20 @@ std::vector<threadConfig> ConfigParser::getConfig()
             thread.config.queueCount != thread.config.queue.size())
         {
             throw std::runtime_error
-                    ("count of elements in thread is not equal to actual - thread_" + std::to_string(thread.number));
+            ("count of elements in thread is not equal to actual: thread_" + std::to_string(thread.number));
         }
     }
 
     return _config;
 }
 
-std::string ConfigParser::createFileCopy()
-{
-    std::string copyPath = _path;
-
-    for (int i = copyPath.size() - 1; i > -1; --i)
-    {
-        if (copyPath[i] != '.' && std::ispunct(copyPath[i]))
-        {
-            break;
-        }
-
-        copyPath.pop_back();
-    }
-
-    copyPath += parser::fileCopyName;
-
-    std::ifstream source(_path, std::ios::binary);
-    std::ofstream destination(copyPath, std::ios::binary);
-
-    if (source && destination)
-    {
-        destination << source.rdbuf();
-    }
-    else
-    {
-        throw std::runtime_error("can't copy file - " + _path);
-    }
-
-    return copyPath;
-}
-
-void ConfigParser::getNameNumber(const std::string& section, std::string& name, int& number)
+void ConfigParser::getNameNumber(const IniSection& section, std::string& name, int& number)
 {
     std::string firstPart;
     std::string secondPart;
     bool splitFlag = false;
 
-    for (auto& item : section)
+    for (const auto& item : std::string(section))
     {
         if (item == parser::separatorInSection)
         {
@@ -160,56 +85,56 @@ void ConfigParser::getNameNumber(const std::string& section, std::string& name, 
         }
         catch (...)
         {
-            throw std::runtime_error("incorrect format of section name - " + section);
+            throw std::runtime_error("incorrect format of section in line: " + std::to_string(section.getLineNum()));
         }
     }
 }
 
-std::string ConfigParser::getKeyErrorMessage(const std::string& key, const std::string& section)
+std::string ConfigParser::getKeyErrorMessage(const std::string& key, const IniSection& section)
 {
-    return "missing key - " + std::string(key) + "\n" + "section - " + section;
+    return "missing key: " + std::string(key) + "\n" + "section line: " + section;
 }
 
-void ConfigParser::readThread(TRTIniFile& file, std::string& section, int number)
+void ConfigParser::readThread(const IniSection& section, int threadNum)
 {
     threadConfig thread;
 
-    if ( !file.KeyExists(section, parser::mutexKey) )
+    if ( !_file.keyExists(section, parser::mutexKey) )
     {
         throw std::runtime_error( getKeyErrorMessage(parser::mutexKey, section) );
     }
 
-    if ( !file.KeyExists(section, parser::queueKey) )
+    if ( !_file.keyExists(section, parser::queueKey) )
     {
         throw std::runtime_error( getKeyErrorMessage(parser::queueKey, section) );
     }
 
-    thread.config.mutexCount = file.ReadInteger(section, parser::mutexKey, 0);
-    thread.config.queueCount = file.ReadInteger(section, parser::queueKey, 0);
-    thread.number = number;
+    thread.config.mutexCount = _file.read<int>(section, parser::mutexKey, 0);
+    thread.config.queueCount = _file.read<int>(section, parser::queueKey, 0);
+    thread.number = threadNum;
 
     _config.push_back( std::move(thread) );
 }
 
-void ConfigParser::readMutex(TRTIniFile& file, std::string& section, int number)
+void ConfigParser::readMutex(const IniSection& section, int threadNum)
 {
-    auto thread = std::find_if(_config.begin(), _config.end(), [&number](threadConfig& thread){
-        return thread.number == number;
+    auto thread = std::find_if(_config.begin(), _config.end(), [&threadNum](const threadConfig& thread){
+        return thread.number == threadNum;
     });
 
     if (thread == _config.end())
     {
-        throw std::runtime_error("incorrect number in section - " + section);
+        throw std::runtime_error("incorrect section number in line: " + std::to_string(section.getLineNum()));
     }
 
-    if ( !file.KeyExists(section, parser::lockKey) )
+    if ( !_file.keyExists(section, parser::lockKey) )
     {
         throw std::runtime_error(getKeyErrorMessage(parser::lockKey, section) );
     }
 
     mutexParams mParams;
-    size_t count = file.ReadInteger(section, parser::countKey, 1);
-    mParams.lock = file.ReadBool(section, parser::lockKey);
+    size_t count = _file.read<int>(section, parser::countKey, 1);
+    mParams.lock = _file.read<bool>(section, parser::lockKey);
 
     size_t threadIndex = std::distance(_config.begin(), thread);
 
@@ -219,37 +144,37 @@ void ConfigParser::readMutex(TRTIniFile& file, std::string& section, int number)
     }
 }
 
-void ConfigParser::readQueue(TRTIniFile& file, std::string& section, int number)
+void ConfigParser::readQueue(const IniSection& section, int threadNum)
 {
-    auto thread = std::find_if(_config.begin(), _config.end(), [&number](threadConfig& thread){
-        return thread.number == number;
+    auto thread = std::find_if(_config.begin(), _config.end(), [&threadNum](const threadConfig& thread){
+        return thread.number == threadNum;
     });
 
     if (thread == _config.end())
     {
-        throw std::runtime_error("incorrect number in section - " + section);
+        throw std::runtime_error("incorrect section number in line: " + std::to_string(section.getLineNum()));
     }
 
-    if ( !file.KeyExists(section, parser::sizeKey) )
+    if ( !_file.keyExists(section, parser::sizeKey) )
     {
         throw std::runtime_error(getKeyErrorMessage(parser::sizeKey, section) );
     }
 
-    if ( !file.KeyExists(section, parser::emptyKey) )
+    if ( !_file.keyExists(section, parser::emptyKey) )
     {
         throw std::runtime_error(getKeyErrorMessage(parser::emptyKey, section) );
     }
 
-    if ( !file.KeyExists(section, parser::fullKey) )
+    if ( !_file.keyExists(section, parser::fullKey) )
     {
         throw std::runtime_error(getKeyErrorMessage(parser::fullKey, section) );
     }
 
     queueParams qParams;
-    size_t count = file.ReadInteger(section, parser::countKey, 1);
-    qParams.size = file.ReadInteger(section, parser::sizeKey);
-    qParams.isEmpty = file.ReadBool(section, parser::emptyKey);
-    qParams.isFull = file.ReadBool(section, parser::fullKey);
+    size_t count = _file.read<int>(section, parser::countKey, 1);
+    qParams.size = _file.read<int>(section, parser::sizeKey);
+    qParams.isEmpty = _file.read<bool>(section, parser::emptyKey);
+    qParams.isFull = _file.read<bool>(section, parser::fullKey);
 
     size_t threadIndex = std::distance(_config.begin(), thread);
 
@@ -259,25 +184,25 @@ void ConfigParser::readQueue(TRTIniFile& file, std::string& section, int number)
     }
 }
 
-void ConfigParser::readTimer(TRTIniFile& file, std::string& section, int number)
+void ConfigParser::readTimer(const IniSection& section, int threadNum)
 {
-    auto thread = std::find_if(_config.begin(), _config.end(), [&number](threadConfig& thread){
-        return thread.number == number;
+    auto thread = std::find_if(_config.begin(), _config.end(), [&threadNum](const threadConfig& thread){
+        return thread.number == threadNum;
     });
 
     if (thread == _config.end())
     {
-        throw std::runtime_error("incorrect number in section - " + section);
+        throw std::runtime_error("incorrect section number in line: " + std::to_string(section.getLineNum()));
     }
 
-    if ( !file.KeyExists(section, parser::timerKey) )
+    if ( !_file.keyExists(section, parser::timerKey) )
     {
         throw std::runtime_error(getKeyErrorMessage(parser::timerKey, section) );
     }
 
     mutexParams mParams;
-    size_t count = file.ReadInteger(section, parser::countKey, 1);
-    mParams.lock = file.ReadBool(section, parser::lockKey);
+    size_t count = _file.read<int>(section, parser::countKey, 1);
+    mParams.lock = _file.read<bool>(section, parser::lockKey);
 
     size_t threadIndex = std::distance(_config.begin(), thread);
 
@@ -287,7 +212,7 @@ void ConfigParser::readTimer(TRTIniFile& file, std::string& section, int number)
     }
 }
 
-void ConfigParser::readSemaphore(TRTIniFile& file, std::string& section, int number)
+void ConfigParser::readSemaphore(const IniSection& section, int threadNum)
 {
 
 }
