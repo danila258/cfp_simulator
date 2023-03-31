@@ -11,8 +11,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/WorkerThreads)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE IniFile)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} PRIVATE MainLogic)
-target_link_libraries(${PROJECT_NAME} PRIVATE ConfigParser)
-target_link_libraries(${PROJECT_NAME} PRIVATE WorkerThreads)
+
+

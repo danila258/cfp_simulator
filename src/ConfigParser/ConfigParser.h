@@ -1,9 +1,9 @@
 #ifndef CONFIGPARSER_H
 #define CONFIGPARSER_H
 
-#include "../lib/IniFile/IniFile.h"
-#include "../WorkerThreads/CustomMutex.h"
-#include "../WorkerThreads/CustomQueue.h"
+#include "IniFile.h"
+#include "CustomMutex.h"
+#include "CustomQueue.h"
 
 #include <vector>
 #include <array>
@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <algorithm>
-#include <iostream>
+#include <functional>
 
 
 namespace parser
@@ -77,7 +77,8 @@ private:
                     {parser::queueSection, &ConfigParser::readQueue}};
 
     static void getNameNumber(const IniSection& section, std::string& name, int& number);
-    static std::string getKeyErrorMessage(const std::string& key, const IniSection& section);
+    void keyExists(const IniSection& section, const std::string& key);
+    size_t getThreadIndex(const IniSection& section, int threadNum);
 
     void readThread(const IniSection& section, int threadNum);
     void readMutex(const IniSection& section, int threadNum);

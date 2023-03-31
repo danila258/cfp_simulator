@@ -5,6 +5,15 @@ ConfigParser::ConfigParser(const std::string& path) : _file(path)
 
 std::vector<threadConfig> ConfigParser::getConfig()
 {
+    try
+    {
+        _file.load();
+    }
+    catch (...)
+    {
+        throw;
+    }
+
     _config.clear();
 
     std::string name;
@@ -22,9 +31,9 @@ std::vector<threadConfig> ConfigParser::getConfig()
                 {
                     (_functionMap.find(name)->second)(this, std::ref(section), threadNum);
                 }
-                else if (std::find(parser::sections.begin(), parser::sections.end(), std::string(section)) == parser::sections.end())
+                else if (std::find(parser::sections.begin(), parser::sections.end(), name) == parser::sections.end())
                 {
-                    throw std::runtime_error("unknown section name in line: " + std::to_string(section.getLineNum()));
+                    throw std::runtime_error("unknown section in line: " + std::to_string(section.getLineNum()));
                 }
             }
             catch (...)
@@ -90,33 +99,15 @@ void ConfigParser::getNameNumber(const IniSection& section, std::string& name, i
     }
 }
 
-std::string ConfigParser::getKeyErrorMessage(const std::string& key, const IniSection& section)
+void ConfigParser::keyExists(const IniSection& section, const std::string& key)
 {
-    return "missing key: " + std::string(key) + "\n" + "section line: " + section;
+    if ( !_file.keyExists(section, key) )
+    {
+        throw std::runtime_error("missing key: " + std::string(key) + "\n" + "section line: " + section);
+    }
 }
 
-void ConfigParser::readThread(const IniSection& section, int threadNum)
-{
-    threadConfig thread;
-
-    if ( !_file.keyExists(section, parser::mutexKey) )
-    {
-        throw std::runtime_error( getKeyErrorMessage(parser::mutexKey, section) );
-    }
-
-    if ( !_file.keyExists(section, parser::queueKey) )
-    {
-        throw std::runtime_error( getKeyErrorMessage(parser::queueKey, section) );
-    }
-
-    thread.config.mutexCount = _file.read<int>(section, parser::mutexKey, 0);
-    thread.config.queueCount = _file.read<int>(section, parser::queueKey, 0);
-    thread.number = threadNum;
-
-    _config.push_back( std::move(thread) );
-}
-
-void ConfigParser::readMutex(const IniSection& section, int threadNum)
+size_t ConfigParser::getThreadIndex(const IniSection& section, int threadNum)
 {
     auto thread = std::find_if(_config.begin(), _config.end(), [&threadNum](const threadConfig& thread){
         return thread.number == threadNum;
@@ -127,16 +118,47 @@ void ConfigParser::readMutex(const IniSection& section, int threadNum)
         throw std::runtime_error("incorrect section number in line: " + std::to_string(section.getLineNum()));
     }
 
-    if ( !_file.keyExists(section, parser::lockKey) )
+    return std::distance(_config.begin(), thread);
+}
+
+void ConfigParser::readThread(const IniSection& section, int threadNum)
+{
+    threadConfig thread;
+
+    try
     {
-        throw std::runtime_error(getKeyErrorMessage(parser::lockKey, section) );
+        keyExists(section, parser::mutexKey);
+        keyExists(section, parser::queueKey);
+
+        thread.config.mutexCount = _file.read<int>(section, parser::mutexKey, 0);
+        thread.config.queueCount = _file.read<int>(section, parser::queueKey, 0);
+        thread.number = threadNum;
+    }
+    catch(...)
+    {
+        throw;
     }
 
-    mutexParams mParams;
-    size_t count = _file.read<int>(section, parser::countKey, 1);
-    mParams.lock = _file.read<bool>(section, parser::lockKey);
+    _config.push_back( std::move(thread) );
+}
 
-    size_t threadIndex = std::distance(_config.begin(), thread);
+void ConfigParser::readMutex(const IniSection& section, int threadNum)
+{
+    size_t threadIndex = getThreadIndex(section, threadNum);
+    size_t count;
+    mutexParams mParams;
+
+    try
+    {
+        keyExists(section, parser::lockKey);
+
+        count = _file.read<int>(section, parser::countKey, 1);
+        mParams.lock = _file.read<bool>(section, parser::lockKey);
+    }
+    catch(...)
+    {
+        throw;
+    }
 
     for (int i = 0; i < count; ++i)
     {
@@ -146,37 +168,25 @@ void ConfigParser::readMutex(const IniSection& section, int threadNum)
 
 void ConfigParser::readQueue(const IniSection& section, int threadNum)
 {
-    auto thread = std::find_if(_config.begin(), _config.end(), [&threadNum](const threadConfig& thread){
-        return thread.number == threadNum;
-    });
-
-    if (thread == _config.end())
-    {
-        throw std::runtime_error("incorrect section number in line: " + std::to_string(section.getLineNum()));
-    }
-
-    if ( !_file.keyExists(section, parser::sizeKey) )
-    {
-        throw std::runtime_error(getKeyErrorMessage(parser::sizeKey, section) );
-    }
-
-    if ( !_file.keyExists(section, parser::emptyKey) )
-    {
-        throw std::runtime_error(getKeyErrorMessage(parser::emptyKey, section) );
-    }
-
-    if ( !_file.keyExists(section, parser::fullKey) )
-    {
-        throw std::runtime_error(getKeyErrorMessage(parser::fullKey, section) );
-    }
-
+    size_t threadIndex = getThreadIndex(section, threadNum);
+    size_t count;
     queueParams qParams;
-    size_t count = _file.read<int>(section, parser::countKey, 1);
-    qParams.size = _file.read<int>(section, parser::sizeKey);
-    qParams.isEmpty = _file.read<bool>(section, parser::emptyKey);
-    qParams.isFull = _file.read<bool>(section, parser::fullKey);
 
-    size_t threadIndex = std::distance(_config.begin(), thread);
+    try
+    {
+        keyExists(section, parser::sizeKey);
+        keyExists(section, parser::emptyKey);
+        keyExists(section, parser::fullKey);
+
+        count = _file.read<int>(section, parser::countKey, 1);
+        qParams.size = _file.read<int>(section, parser::sizeKey);
+        qParams.isEmpty = _file.read<bool>(section, parser::emptyKey);
+        qParams.isFull = _file.read<bool>(section, parser::fullKey);
+    }
+    catch (...)
+    {
+        throw;
+    }
 
     for (int i = 0; i < count; ++i)
     {
@@ -186,30 +196,7 @@ void ConfigParser::readQueue(const IniSection& section, int threadNum)
 
 void ConfigParser::readTimer(const IniSection& section, int threadNum)
 {
-    auto thread = std::find_if(_config.begin(), _config.end(), [&threadNum](const threadConfig& thread){
-        return thread.number == threadNum;
-    });
 
-    if (thread == _config.end())
-    {
-        throw std::runtime_error("incorrect section number in line: " + std::to_string(section.getLineNum()));
-    }
-
-    if ( !_file.keyExists(section, parser::timerKey) )
-    {
-        throw std::runtime_error(getKeyErrorMessage(parser::timerKey, section) );
-    }
-
-    mutexParams mParams;
-    size_t count = _file.read<int>(section, parser::countKey, 1);
-    mParams.lock = _file.read<bool>(section, parser::lockKey);
-
-    size_t threadIndex = std::distance(_config.begin(), thread);
-
-    for (int i = 0; i < count; ++i)
-    {
-        _config[threadIndex].config.mutexes.push_back(mParams);
-    }
 }
 
 void ConfigParser::readSemaphore(const IniSection& section, int threadNum)

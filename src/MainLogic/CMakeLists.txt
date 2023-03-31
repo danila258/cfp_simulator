@@ -7,6 +7,6 @@ add_library(${PROJECT_NAME} STATIC MainLogic.cpp)
 target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME}
-                      PRIVATE ConfigParser
+                      PUBLIC ConfigParser
                       PRIVATE WorkerThreads
-                      PRIVATE spdlog::spdlog)
+                      PUBLIC spdlog::spdlog)

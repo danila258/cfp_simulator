@@ -1,7 +1,7 @@
 #ifndef CUSTOMMUTEX_H
 #define CUSTOMMUTEX_H
 
-#include <thread>
+#include <mutex>
 
 
 struct mutexParams
