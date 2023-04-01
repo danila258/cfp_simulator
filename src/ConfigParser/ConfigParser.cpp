@@ -45,8 +45,10 @@ std::vector<threadConfig> ConfigParser::getConfig()
 
     for (auto& thread : _config)
     {
-        if (thread.config.mutexCount != thread.config.mutexes.size() ||
-            thread.config.queueCount != thread.config.queue.size())
+        if (thread.config.mutexCount != thread.config.mutexes.size()        ||
+            thread.config.semaphoreCount != thread.config.semaphores.size() ||
+            thread.config.queueCount != thread.config.queues.size()         ||
+            thread.config.timerCount != thread.config.timers.size())
         {
             throw std::runtime_error
             ("count of elements in thread is not equal to actual: thread_" + std::to_string(thread.number));
@@ -127,11 +129,10 @@ void ConfigParser::readThread(const IniSection& section, int threadNum)
 
     try
     {
-        keyExists(section, parser::mutexKey);
-        keyExists(section, parser::queueKey);
-
         thread.config.mutexCount = _file.read<int>(section, parser::mutexKey, 0);
+        thread.config.semaphoreCount = _file.read<int>(section, parser::semaphoreKey, 0);
         thread.config.queueCount = _file.read<int>(section, parser::queueKey, 0);
+        thread.config.timerCount = _file.read<int>(section, parser::timerKey, 0);
         thread.number = threadNum;
     }
     catch(...)
@@ -166,6 +167,30 @@ void ConfigParser::readMutex(const IniSection& section, int threadNum)
     }
 }
 
+void ConfigParser::readSemaphore(const IniSection& section, int threadNum)
+{
+    size_t threadIndex = getThreadIndex(section, threadNum);
+    size_t count;
+    semaphoreParams sParams;
+
+    try
+    {
+        keyExists(section, parser::stateKey);
+
+        count = _file.read<int>(section, parser::countKey, 1);
+        sParams.state = _file.read<bool>(section, parser::stateKey);
+    }
+    catch(...)
+    {
+        throw;
+    }
+
+    for (int i = 0; i < count; ++i)
+    {
+        _config[threadIndex].config.semaphores.push_back(sParams);
+    }
+}
+
 void ConfigParser::readQueue(const IniSection& section, int threadNum)
 {
     size_t threadIndex = getThreadIndex(section, threadNum);
@@ -190,16 +215,33 @@ void ConfigParser::readQueue(const IniSection& section, int threadNum)
 
     for (int i = 0; i < count; ++i)
     {
-        _config[threadIndex].config.queue.push_back(qParams);
+        _config[threadIndex].config.queues.push_back(qParams);
     }
 }
 
 void ConfigParser::readTimer(const IniSection& section, int threadNum)
 {
+    size_t threadIndex = getThreadIndex(section, threadNum);
+    size_t count;
+    timerParams tParams;
 
+    try
+    {
+        keyExists(section, parser::timeoutKey);
+        keyExists(section, parser::stateKey);
+
+        count = _file.read<int>(section, parser::countKey, 1);
+        tParams.timeout = _file.read<int>(section, parser::timeoutKey);
+        tParams.state = _file.read<bool>(section, parser::stateKey);
+    }
+    catch(...)
+    {
+        throw;
+    }
+
+    for (int i = 0; i < count; ++i)
+    {
+        _config[threadIndex].config.timers.push_back(tParams);
+    }
 }
 
-void ConfigParser::readSemaphore(const IniSection& section, int threadNum)
-{
-
-}

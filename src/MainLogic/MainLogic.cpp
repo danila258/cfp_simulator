@@ -39,7 +39,6 @@ void MainLogic::startLogging()
     parsingFileNameExtension();
 
     TRTLog::Init(programInfo::name, programInfo::version, TRTLogSenderToFile(_fileName, logging::loggerAppandFlag, logging::logDirectory));
-    //rtlog.addFileLog("module A", TRTLogSenderToFile(_fileName + logging::logFormat, logging::loggerAppandFlag, logging::logDirectory));
     rtlog(INFO) << _fileName + _fileExtension;
 }
 
@@ -63,15 +62,4 @@ void MainLogic::parsingFileNameExtension()
     size_t dotPos = _fileName.find_last_of('.');
     _fileExtension = _fileName.substr(dotPos);
     _fileName.erase(dotPos, _fileName.size() - dotPos);
-
-    //clear previous log file
-//    std::ofstream fileClearStream;
-//    fileClearStream.open(logPath + _fileName + logging::logFormat, std::ofstream::out | std::ofstream::trunc);
-
-//    if ( !fileClearStream )
-//    {
-//        throw std::runtime_error("can't clear log file");
-//    }
-
-//    fileClearStream.close();
 }

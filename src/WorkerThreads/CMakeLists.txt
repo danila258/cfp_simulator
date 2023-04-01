@@ -3,12 +3,15 @@ project(WorkerThreads)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_library(${PROJECT_NAME} STATIC WorkerThreads.cpp CustomMutex.cpp)
+add_library(${PROJECT_NAME} STATIC WorkerThreads.cpp)
 target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/log)
+include_directories(${PROJECT_NAME}
+                    ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/log
+                    ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/task
+                    ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/syns
+                    ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/data)
 
 target_link_libraries(${PROJECT_NAME}
                       PRIVATE ConfigParser
-                      PRIVATE spdlog::spdlog
                       PRIVATE RTLib3)

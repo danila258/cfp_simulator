@@ -1,6 +1,3 @@
-[submodule "src/lib/spdlog"]
-	path = src/lib/spdlog
-	url = https://github.com/gabime/spdlog
 [submodule "src/lib/IniFile"]
 	path = src/lib/IniFile
 	url = https://github.com/danila258/IniFile.git

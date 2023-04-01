@@ -1,72 +1,116 @@
 #include "WorkerThreads.h"
 
-std::mutex loggerMutex;
+TRTMutex loggerMutex;
 
-void threadFunction(const threadConfig& threadConfig)
+CreatingObjectsThread::CreatingObjectsThread(threadConfig threadConfig) : _threadConfig(std::move(threadConfig))
+{}
+
+int CreatingObjectsThread::getThreadNum()
 {
-    loggerMutex.lock();
-    rtlog(INFO) << "Create thread_" << threadConfig.number;
-    loggerMutex.unlock();
+    return _threadConfig.number;
+}
 
-    std::deque<std::unique_ptr<CustomMutex>> mutexArr;
+void CreatingObjectsThread::TaskFunc()
+{
+    loggerMutex.Lock();
+    rtlog(INFO) << "Create thread_" << _threadConfig.number;
+    loggerMutex.Unlock();
 
-    std::vector<CustomQueue<int>> queueArr;
-    queueArr.reserve(threadConfig.config.queueCount);
-
+    std::deque<TRTMutex> mutexArr;
     size_t id = 0;
 
-    for (auto& mParams : threadConfig.config.mutexes)
+    for (auto& mParams : _threadConfig.config.mutexes)
     {
-        mutexArr.emplace_back(std::unique_ptr<CustomMutex>(new CustomMutex(mParams) ));
-        mutexArr.back()->_params.lock = mParams.lock;
-        mutexArr.back()->_params.id = id;
-        mutexArr.back()->_params.name += " " + std::to_string(id);
+        mutexArr.emplace_back();
+        mutexArr.back().setName(mParams.name + " " + std::to_string(id));
         ++id;
 
-        if (mutexArr.back()->_params.lock)
+        if (mParams.lock)
         {
-            mutexArr.back()->lock();
+            mutexArr.back().Lock();
         }
 
-        std::lock_guard<std::mutex> lock(loggerMutex);
-        rtlog(INFO) << "thread_pid: " << threadConfig.number << " Create " << mParams.name;
+        loggerMutex.Lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << mutexArr.back().getName();
+        loggerMutex.Unlock();
     }
 
+    std::deque<TRTBinSemaphore> semaphoreArr;
     id = 0;
 
-    for (auto& qParams : threadConfig.config.queue)
+    for (auto& sParams : _threadConfig.config.semaphores)
     {
-        queueArr.emplace_back();
-        queueArr.back()._params = qParams;
-        queueArr.back()._params.id = id;
-        queueArr.back()._params.name += " " + std::to_string(id);
+        semaphoreArr.emplace_back(sParams.state);
+        semaphoreArr.back().setName(sParams.name + " " + std::to_string(id));
+        ++id;
+
+        loggerMutex.Lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << semaphoreArr.back().getName();
+        loggerMutex.Unlock();
+    }
+
+    std::deque<TRTQue> queueArr;
+    id = 0;
+
+    for (auto& qParams : _threadConfig.config.queues)
+    {
+        queueArr.emplace_back(qParams.size, 8);
+        queueArr.back().setName(qParams.name + " " + std::to_string(id));
         ++id;
 
         for (int i = 0; i < qParams.size; ++i)
         {
-            queueArr.back().emplace(0);
+            int* buf = new int();
+            queueArr.back().Write(buf, sizeof(int), this);
         }
 
-        std::lock_guard<std::mutex> lock(loggerMutex);
-        rtlog(INFO) << "thread_pid: " << threadConfig.number << " Create " << qParams.name;
+        loggerMutex.Lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << queueArr.back().getName();
+        loggerMutex.Unlock();
+    }
+
+    std::deque<TRTSysTimer> timerArr;
+    id = 0;
+
+    for (auto& tParams : _threadConfig.config.timers)
+    {
+        timerArr.emplace_back();
+        timerArr.back().setName(tParams.name + " " + std::to_string(id));
+        ++id;
+
+        if (tParams.state)
+        {
+            timerArr.back().Start(tParams.timeout);
+        }
+
+        loggerMutex.Lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << timerArr.back().getName();
+        loggerMutex.Unlock();
     }
 }
 
 void workerThreads(const std::vector<threadConfig>& config)
 {
-    std::vector<std::pair<std::thread, int>> threadPool;
+    std::deque<CreatingObjectsThread> threadPool;
 
     for (auto& threadConfig : config)
     {
-        std::thread t(threadFunction, std::ref(threadConfig));
-        threadPool.emplace_back(std::move(t), threadConfig.number);
+        threadPool.emplace_back(threadConfig);
+
+        if ( !threadPool.back().Start() )
+        {
+            loggerMutex.Lock();
+            rtlog(WARNING) << "thread_" << threadConfig.number << " was not created";
+            loggerMutex.Unlock();
+        }
     }
 
     for (auto& thread : threadPool)
     {
-        thread.first.join();
+        thread.Join();
 
-        std::lock_guard<std::mutex> lock(loggerMutex);
-        rtlog(INFO) << "thread_" << thread.second << " join";
+        loggerMutex.Lock();
+        rtlog(INFO) << "thread_" << thread.getThreadNum() << " join";
+        loggerMutex.Unlock();
     }
 }
