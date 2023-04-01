@@ -1,6 +1,6 @@
 #include "MainLogic.h"
 
-void MainLogic::startProgram(int argc, char* argv[])
+MainLogic::MainLogic(int argc, char* argv[])
 {
     if (argc == 1)
     {
@@ -31,16 +31,16 @@ void MainLogic::runThreads()
     ConfigParser parser(_path);
 
     startLogging();
-    workerThreads(parser.getConfig(), _logger);
+    workerThreads(parser.getConfig());
 }
 
 void MainLogic::startLogging()
 {
     parsingFileNameExtension();
 
-    _logger = spdlog::basic_logger_st("basic_logger", _logPath + _fileName + logging::logFormat);
-    _logger->set_pattern("[%H:%M:%S:%e:%f:%F] [%l] %v");
-    _logger->info(_fileName + _fileExtension);
+    TRTLog::Init(programInfo::name, programInfo::version, TRTLogSenderToFile(_fileName, logging::loggerAppandFlag, logging::logDirectory));
+    //rtlog.addFileLog("module A", TRTLogSenderToFile(_fileName + logging::logFormat, logging::loggerAppandFlag, logging::logDirectory));
+    rtlog(INFO) << _fileName + _fileExtension;
 }
 
 void MainLogic::parsingFileNameExtension()
@@ -65,13 +65,13 @@ void MainLogic::parsingFileNameExtension()
     _fileName.erase(dotPos, _fileName.size() - dotPos);
 
     //clear previous log file
-    std::ofstream fileClearStream;
-    fileClearStream.open(logPath + _fileName + logging::logFormat, std::ofstream::out | std::ofstream::trunc);
+//    std::ofstream fileClearStream;
+//    fileClearStream.open(logPath + _fileName + logging::logFormat, std::ofstream::out | std::ofstream::trunc);
 
-    if ( !fileClearStream )
-    {
-        throw std::runtime_error("can't clear log file");
-    }
+//    if ( !fileClearStream )
+//    {
+//        throw std::runtime_error("can't clear log file");
+//    }
 
-    fileClearStream.close();
+//    fileClearStream.close();
 }

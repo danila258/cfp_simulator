@@ -5,16 +5,16 @@
 #include "CustomQueue.h"
 #include "ConfigParser.h"
 
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/logger.h"
+#include "log/TRTLog.h"
+#include "log/TRTLogSender.h"
 
 #include <deque>
 #include <thread>
 #include <memory>
 
 
-void threadFunction(const threadConfig& threadConfig, const std::shared_ptr<spdlog::logger>& logger);
-void workerThreads(const std::vector<threadConfig>& config, const std::shared_ptr<spdlog::logger>& logger);
+void threadFunction(const threadConfig& threadConfig);
+void workerThreads(const std::vector<threadConfig>& config);
 
 
 #endif // WORKERTHREADS_H

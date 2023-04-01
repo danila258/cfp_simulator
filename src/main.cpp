@@ -2,8 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    MainLogic logic;
-    logic.startProgram(argc, argv);
+    MainLogic logic(argc, argv);
 
     return 0;
 }

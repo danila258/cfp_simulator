@@ -1,5 +1,5 @@
 # Vega
-src/lib/RTLib3/*
+src/lib/RTLib3/
 
 # Specific
 .DS_Store

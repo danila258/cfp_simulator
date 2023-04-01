@@ -4,19 +4,22 @@
 #include "ConfigParser.h"
 #include "WorkerThreads.h"
 
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/logger.h"
-
 #include "log/TRTLog.h"
 #include "log/TRTLogSender.h"
 
 #include <iostream>
 #include <algorithm>
 
+namespace programInfo
+{
+    constexpr auto name = "cfp_simulator";
+    constexpr auto version = "0.0.1";
+}
 
 namespace logging
 {
-    constexpr auto logFormat = ".log";
+    constexpr auto loggerName = "file_logger";
+    constexpr auto loggerAppandFlag = false;
     constexpr auto logDirectory = "./";
 }
 
@@ -24,7 +27,7 @@ namespace logging
 class MainLogic
 {
 public:
-    void startProgram(int argc, char* argv[]);
+    MainLogic(int argc, char* argv[]);
 
 private:
     void runThreads();
@@ -35,10 +38,7 @@ private:
     std::string _fileName;
     std::string _fileExtension;
 
-    std::shared_ptr<spdlog::logger> _logger;
     std::string _logPath;
-
-    TRTLogSenderToFile _logger2();
 };
 
 
