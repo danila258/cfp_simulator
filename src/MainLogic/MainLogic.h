@@ -7,6 +7,9 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/logger.h"
 
+#include "log/TRTLog.h"
+#include "log/TRTLogSender.h"
+
 #include <iostream>
 #include <algorithm>
 
@@ -14,6 +17,7 @@
 namespace logging
 {
     constexpr auto logFormat = ".log";
+    constexpr auto logDirectory = "./";
 }
 
 
@@ -33,6 +37,8 @@ private:
 
     std::shared_ptr<spdlog::logger> _logger;
     std::string _logPath;
+
+    TRTLogSenderToFile _logger2();
 };
 
 

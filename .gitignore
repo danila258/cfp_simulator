@@ -1,6 +1,5 @@
 # Vega
-/src/lib/RTLib3/
-/src/TRTIniFile/
+src/lib/RTLib3/*
 
 # Specific
 .DS_Store

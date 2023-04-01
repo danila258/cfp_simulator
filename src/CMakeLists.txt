@@ -3,6 +3,7 @@ project(cfp_simulator)
 
 set(CMAKE_CXX_STANDARD 11)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/RTLib3/prj/cmake)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/IniFile)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/spdlog)
 add_subdirectory(${PROJECT_SOURCE_DIR}/MainLogic)
