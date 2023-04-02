@@ -11,9 +11,13 @@ MainLogic::MainLogic(int argc, char* argv[])
         if (argc == 3)
         {
             _logFlag = false;
+            _path = (strcmp(argv[1], logging::disableLog))? argv[1] : argv[2];
+        }
+        else
+        {
+            _path = argv[1];
         }
 
-        _path = argv[1];
         runThreads();
     }
     else
