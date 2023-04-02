@@ -44,7 +44,10 @@ MainLogic::MainLogic(int argc, char* argv[])
             }
             else
             {
-                command.append(argv[0]).append(" ").append(argv[i]).append(" ").append(logging::disableLog);
+                if (strcmp(argv[i], logging::disableLog))
+                {
+                    command.append(argv[0]).append(" ").append(argv[i]).append(" ").append(logging::disableLog);
+                }
             }
 
             std::system( command.c_str() );
