@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 namespace programInfo
 {
@@ -18,7 +19,7 @@ namespace programInfo
 
 namespace logging
 {
-    constexpr auto loggerName = "file_logger";
+    constexpr auto disableLog = "log=off";
     constexpr auto loggerAppandFlag = false;
     constexpr auto logDirectory = "./";
 }
@@ -37,8 +38,9 @@ private:
     std::string _path;
     std::string _fileName;
     std::string _fileExtension;
-
     std::string _logPath;
+
+    bool _logFlag = true;
 };
 
 

@@ -6,8 +6,13 @@ MainLogic::MainLogic(int argc, char* argv[])
     {
         std::cout << "missing file path" << '\n';
     }
-    else if (argc == 2)
+    else if (argc == 2 || argc == 3 && (strcmp(argv[1], logging::disableLog) == 0 || strcmp(argv[2], logging::disableLog) == 0))
     {
+        if (argc == 3)
+        {
+            _logFlag = false;
+        }
+
         _path = argv[1];
         runThreads();
     }
@@ -15,11 +20,28 @@ MainLogic::MainLogic(int argc, char* argv[])
     {
         for (int i = 1; i < argc; ++i)
         {
+            if (strcmp(argv[i], "log=off") == 0)
+            {
+                _logFlag = false;
+                break;
+            }
+        }
+
+        for (int i = 1; i < argc; ++i)
+        {
             // an explicit flush of std::cout is also necessary before a call to std::system
             std::cout.flush();
 
             std::string command;
-            command.append(argv[0]).append(" ").append(argv[i]);
+
+            if (_logFlag)
+            {
+                command.append(argv[0]).append(" ").append(argv[i]);
+            }
+            else
+            {
+                command.append(argv[0]).append(" ").append(argv[i]).append(" ").append(logging::disableLog);
+            }
 
             std::system( command.c_str() );
         }
@@ -28,33 +50,36 @@ MainLogic::MainLogic(int argc, char* argv[])
 
 void MainLogic::runThreads()
 {
-    ConfigParser parser(_path);
+    parsingFileNameExtension();
 
-    startLogging();
+    if (_logFlag)
+    {
+        startLogging();
+    }
+
+    ConfigParser parser(_path);
     workerThreads(parser.getConfig());
 }
 
 void MainLogic::startLogging()
 {
-    parsingFileNameExtension();
-
     TRTLog::Init(programInfo::name, programInfo::version, TRTLogSenderToFile(_fileName, logging::loggerAppandFlag, logging::logDirectory));
     rtlog(INFO) << _fileName + _fileExtension;
 }
 
 void MainLogic::parsingFileNameExtension()
 {
-    std::string logPath = _path;
+    _logPath = _path;
 
-    for (int i = logPath.size() - 1; i > -1; --i)
+    for (int i = _logPath.size() - 1; i > -1; --i)
     {
-        if (logPath[i] != '.' && std::ispunct(logPath[i]))
+        if (_logPath[i] != '.' && std::ispunct(_logPath[i]))
         {
             break;
         }
 
-        _fileName.push_back(logPath[i]);
-        logPath.pop_back();
+        _fileName.push_back(_logPath[i]);
+        _logPath.pop_back();
     }
 
     std::reverse(_fileName.begin(), _fileName.end());
