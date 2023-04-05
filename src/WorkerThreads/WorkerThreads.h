@@ -17,6 +17,7 @@
 #include <deque>
 #include <thread>
 #include <memory>
+#include <mutex>
 
 
 class CreatingObjectsThread : public TRTThread
