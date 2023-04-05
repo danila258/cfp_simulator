@@ -10,6 +10,9 @@
 #include "sync/TRTBinSemaphore.h"
 #include "data/TRTQue.h"
 #include "timer/TRTSysTimer.h"
+#include "sync/TRTEvent.h"
+#include "sync/TRTCondvar.h"
+#include "data/TRTSharedMemory.h"
 
 #include <deque>
 #include <thread>

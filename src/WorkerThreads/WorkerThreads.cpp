@@ -1,6 +1,6 @@
 #include "WorkerThreads.h"
 
-TRTMutex loggerMutex;
+std::mutex loggerMutex;
 
 CreatingObjectsThread::CreatingObjectsThread(threadConfig threadConfig) : _threadConfig(std::move(threadConfig))
 {}
@@ -12,9 +12,9 @@ int CreatingObjectsThread::getThreadNum()
 
 void CreatingObjectsThread::TaskFunc()
 {
-    loggerMutex.Lock();
+    loggerMutex.lock();
     rtlog(INFO) << "Create thread_" << _threadConfig.number;
-    loggerMutex.Unlock();
+    loggerMutex.unlock();
 
     std::deque<TRTMutex> mutexArr;
     size_t id = 0;
@@ -30,9 +30,9 @@ void CreatingObjectsThread::TaskFunc()
             mutexArr.back().Lock();
         }
 
-        loggerMutex.Lock();
+        loggerMutex.lock();
         rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << mutexArr.back().getName();
-        loggerMutex.Unlock();
+        loggerMutex.unlock();
     }
 
     std::deque<TRTBinSemaphore> semaphoreArr;
@@ -44,9 +44,9 @@ void CreatingObjectsThread::TaskFunc()
         semaphoreArr.back().setName(sParams.name + " " + std::to_string(id));
         ++id;
 
-        loggerMutex.Lock();
+        loggerMutex.lock();
         rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << semaphoreArr.back().getName();
-        loggerMutex.Unlock();
+        loggerMutex.unlock();
     }
 
     std::deque<TRTQue> queueArr;
@@ -64,9 +64,9 @@ void CreatingObjectsThread::TaskFunc()
             queueArr.back().Write(buf, sizeof(int), this);
         }
 
-        loggerMutex.Lock();
+        loggerMutex.lock();
         rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << queueArr.back().getName();
-        loggerMutex.Unlock();
+        loggerMutex.unlock();
     }
 
     std::deque<TRTSysTimer> timerArr;
@@ -83,9 +83,55 @@ void CreatingObjectsThread::TaskFunc()
             timerArr.back().Start(tParams.timeout);
         }
 
-        loggerMutex.Lock();
+        loggerMutex.lock();
         rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << timerArr.back().getName();
-        loggerMutex.Unlock();
+        loggerMutex.unlock();
+    }
+
+    std::deque<TRTEvent> eventArr;
+    id = 0;
+
+    for (auto& eParams : _threadConfig.config.events)
+    {
+        eventArr.emplace_back(eParams.fState);
+        eventArr.back().SetName(eParams.name + " " + std::to_string(id));
+        ++id;
+
+        loggerMutex.lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << timerArr.back().getName();
+        loggerMutex.unlock();
+    }
+
+    std::deque<TRTCondVar> condvarArr;
+    id = 0;
+
+    for (auto& cParams : _threadConfig.config.condvars)
+    {
+        condvarArr.emplace_back();
+        condvarArr.back().setName(cParams.name + " " + std::to_string(id));
+        ++id;
+
+        loggerMutex.lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << timerArr.back().getName();
+        loggerMutex.unlock();
+    }
+
+    std::deque<TRTSharedMemory> memoryArr;
+    id = 0;
+
+    for (auto& mParams : _threadConfig.config.memory)
+    {
+        memoryArr.emplace_back(std::string(mParams.name + " " + std::to_string(id)).c_str(), mParams.lSize, mParams.bMap);
+        ++id;
+
+        if (mParams.timeout > 0)
+        {
+            memoryArr.back().Lock(mParams.timeout);
+        }
+
+        loggerMutex.lock();
+        rtlog(INFO) << "thread_pid: " << _threadConfig.number << " Create " << timerArr.back().getName();
+        loggerMutex.unlock();
     }
 }
 
@@ -99,9 +145,9 @@ void workerThreads(const std::vector<threadConfig>& config)
 
         if ( !threadPool.back().Start() )
         {
-            loggerMutex.Lock();
+            loggerMutex.lock();
             rtlog(WARNING) << "thread_" << threadConfig.number << " was not created";
-            loggerMutex.Unlock();
+            loggerMutex.unlock();
         }
     }
 
@@ -109,8 +155,8 @@ void workerThreads(const std::vector<threadConfig>& config)
     {
         thread.Join();
 
-        loggerMutex.Lock();
+        loggerMutex.lock();
         rtlog(INFO) << "thread_" << thread.getThreadNum() << " join";
-        loggerMutex.Unlock();
+        loggerMutex.unlock();
     }
 }

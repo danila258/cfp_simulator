@@ -19,6 +19,9 @@ namespace parser
     constexpr auto semaphoreKey = "sem";
     constexpr auto queueKey = "que";
     constexpr auto timerKey = "timer";
+    constexpr auto eventKey = "event";
+    constexpr auto condVarKey = "condvar";
+    constexpr auto memoryKey = "memory";
     constexpr auto countKey = "count";
     constexpr auto sizeKey = "size";
     constexpr auto lockKey = "lock";
@@ -26,12 +29,19 @@ namespace parser
     constexpr auto emptyKey = "isEmpty";
     constexpr auto stateKey = "state";
     constexpr auto timeoutKey = "timeout";
+    constexpr auto fStateKey = "fState";
+    constexpr auto lSizeKey = "lSize";
+    constexpr auto bMapKey = "bMap";
 
     constexpr auto threadSection = "thread";
     constexpr auto mutexSection = "mutex";
     constexpr auto semaphoreSection = "sem";
     constexpr auto queueSection = "que";
     constexpr auto timerSection = "timer";
+    constexpr auto eventSection = "event";
+    constexpr auto condVarSection = "condvar";
+    constexpr auto memorySection = "memory";
+
 
     // the first element must be threadSection because we can't check other sections without known threads numbers
     constexpr std::array<const char*, 5> sections = {threadSection, mutexSection, queueSection, timerSection,
@@ -76,6 +86,30 @@ struct timerParams
     bool state;
 };
 
+struct eventParams
+{
+    int id;
+    std::string name = "event";
+    bool fState;
+};
+
+
+struct condvarParams
+{
+    int id;
+    std::string name = "condvar";
+};
+
+
+struct memoryParams
+{
+    int id;
+    std::string name = "memory";
+    size_t lSize;
+    bool bMap;
+    size_t timeout;
+};
+
 
 struct dataContainers
 {
@@ -83,11 +117,17 @@ struct dataContainers
     size_t semaphoreCount;
     size_t queueCount;
     size_t timerCount;
+    size_t eventCount;
+    size_t condvarCount;
+    size_t memoryCount;
 
     std::vector<mutexParams> mutexes;
     std::vector<semaphoreParams> semaphores;
     std::vector<queueParams> queues;
     std::vector<timerParams> timers;
+    std::vector<eventParams> events;
+    std::vector<condvarParams> condvars;
+    std::vector<memoryParams> memory;
 };
 
 
@@ -126,6 +166,9 @@ private:
     void readSemaphore(const IniSection& section, int threadNum);
     void readQueue(const IniSection& section, int threadNum);
     void readTimer(const IniSection& section, int threadNum);
+    void readEvent(const IniSection& section, int threadNum);
+    void readCondvar(const IniSection& section, int threadNum);
+    void readMemory(const IniSection& section, int threadNum);
 };
 
 
