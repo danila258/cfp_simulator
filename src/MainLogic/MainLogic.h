@@ -19,8 +19,8 @@ namespace programInfo
 
 namespace logging
 {
-    constexpr auto disableLog = "log=off";
-    constexpr auto loggerAppandFlag = false;
+    constexpr auto disableLog = "LOG_OFF";
+    constexpr auto loggerAppendFlag = false;
     constexpr auto logDirectory = "./";
 }
 

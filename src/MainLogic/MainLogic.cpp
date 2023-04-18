@@ -70,7 +70,7 @@ void MainLogic::runThreads()
 
 void MainLogic::startLogging()
 {
-    TRTLog::Init(programInfo::name, programInfo::version, TRTLogSenderToFile(_fileName, logging::loggerAppandFlag, logging::logDirectory));
+    TRTLog::Init(programInfo::name, programInfo::version, TRTLogSenderToFile(_fileName, logging::loggerAppendFlag, logging::logDirectory));
     rtlog(INFO) << _fileName + _fileExtension;
 }
 
