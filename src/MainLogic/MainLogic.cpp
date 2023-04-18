@@ -2,52 +2,45 @@
 
 MainLogic::MainLogic(int argc, char* argv[])
 {
-    if (argc == 1)
+    std::vector<std::string> pathsArr;
+    std::string programName = argv[0];
+
+    for (size_t i = 1; i < argc; ++i)
+    {
+        pathsArr.emplace_back(argv[i]);
+    }
+
+    // find flag which disable logging and after delete it
+    auto it = std::find(pathsArr.begin(), pathsArr.end(), logging::disableLog);
+
+    if (it != pathsArr.end())
+    {
+        _logFlag = false;
+        pathsArr.erase(it);
+    }
+
+    if (pathsArr.size() == 1)
     {
         std::cout << "missing file path" << '\n';
     }
-    else if (argc == 2 || argc == 3 && (strcmp(argv[1], logging::disableLog) == 0 || strcmp(argv[2], logging::disableLog) == 0))
+    else if (pathsArr.size() == 2)
     {
-        if (argc == 3)
-        {
-            _logFlag = false;
-            _path = (strcmp(argv[1], logging::disableLog))? argv[1] : argv[2];
-        }
-        else
-        {
-            _path = argv[1];
-        }
-
+        _path = pathsArr.back();
         runThreads();
     }
     else
     {
-        for (int i = 1; i < argc; ++i)
-        {
-            if (strcmp(argv[i], "log=off") == 0)
-            {
-                _logFlag = false;
-                break;
-            }
-        }
-
-        for (int i = 1; i < argc; ++i)
+        for (const auto& path : pathsArr)
         {
             // an explicit flush of std::cout is also necessary before a call to std::system
             std::cout.flush();
 
-            std::string command;
+            std::string command = programName;
+            command.append(" ").append(path);
 
-            if (_logFlag)
+            if ( !_logFlag )
             {
-                command.append(argv[0]).append(" ").append(argv[i]);
-            }
-            else
-            {
-                if (strcmp(argv[i], logging::disableLog))
-                {
-                    command.append(argv[0]).append(" ").append(argv[i]).append(" ").append(logging::disableLog);
-                }
+                command += logging::disableLog;
             }
 
             std::system( command.c_str() );
@@ -78,9 +71,9 @@ void MainLogic::parsingFileNameExtension()
 {
     _logPath = _path;
 
-    for (int i = _logPath.size() - 1; i > -1; --i)
+    for (long long i = _logPath.size() - 1; i > -1; --i)
     {
-        if (_logPath[i] != '.' && std::ispunct(_logPath[i]))
+        if (_logPath[i] != '.' && (_logPath[i] == '/' || _logPath[i] == '\\'))
         {
             break;
         }
@@ -92,6 +85,10 @@ void MainLogic::parsingFileNameExtension()
     std::reverse(_fileName.begin(), _fileName.end());
 
     size_t dotPos = _fileName.find_last_of('.');
-    _fileExtension = _fileName.substr(dotPos);
-    _fileName.erase(dotPos, _fileName.size() - dotPos);
+
+    if (dotPos != std::string::npos)
+    {
+        _fileExtension = _fileName.substr(dotPos);
+        _fileName.erase(dotPos, _fileName.size() - dotPos);
+    }
 }

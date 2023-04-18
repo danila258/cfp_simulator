@@ -1,3 +1,0 @@
-[submodule "src/lib/IniFile"]
-	path = src/lib/IniFile
-	url = https://github.com/danila258/IniFile.git

@@ -1,20 +1,11 @@
 #ifndef OBJECTFACTORY_H
 #define OBJECTFACTORY_H
 
-#include "sync/TRTMutex.h"
-
 #include <vector>
 #include <unordered_map>
 #include <memory>
 #include <functional>
 #include <stdexcept>
-
-
-#define DELETER(T) [](void* ptr){ delete static_cast<T>(ptr); }
-#define CALL(T, func) static_cast<T>(_object.get())->func()
-
-
-void checkArgsCount(const std::vector<std::string>& args, int size);
 
 
 class Object
@@ -47,18 +38,6 @@ void ObjectFactory::registerType()
         return std::unique_ptr<Object>(dynamic_cast<Object*>(new T(args)));
     });
 }
-
-
-class TRTMutexObject : public Object
-{
-public:
-    explicit TRTMutexObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
-
-private:
-    static const std::string _typeName;   // TRTMutex
-};
 
 
 #endif //OBJECTFACTORY_H
