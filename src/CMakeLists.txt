@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_CXX_FLAGS "-Wall -Werror")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/RTLib3/prj/cmake)
-add_subdirectory(${PROJECT_SOURCE_DIR}/lib/IniFile)
 add_subdirectory(${PROJECT_SOURCE_DIR}/MainLogic)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ObjectFactory)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ConfigParser)

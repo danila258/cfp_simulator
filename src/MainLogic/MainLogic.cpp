@@ -57,8 +57,8 @@ void MainLogic::runThreads()
         startLogging();
     }
 
-    ConfigParser parser(_path);
-    workerThreads(parser.getConfig());
+    //ConfigParser parser(_path);
+    //workerThreads(parser.getConfig());
 }
 
 void MainLogic::startLogging()

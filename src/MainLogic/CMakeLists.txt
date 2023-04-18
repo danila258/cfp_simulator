@@ -10,5 +10,5 @@ include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/log)
 
 target_link_libraries(${PROJECT_NAME}
                       PUBLIC ConfigParser
-                      PRIVATE WorkerThreads
+                      PUBLIC WorkerThreads
                       PUBLIC RTLib3)
