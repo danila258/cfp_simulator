@@ -1,11 +1,12 @@
-#include "MainLogic.h"
-#include "ObjectFactory.h"
-
-#include <memory>
+#include "MainWidget.h"
+#include <QApplication>
 
 int main(int argc, char* argv[])
 {
-    MainLogic logic(argc, argv);
+    QApplication app(argc, argv);
 
-    return 0;
+    auto* a = new MainWidget();
+    a->show();
+
+    return app.exec();
 }

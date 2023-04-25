@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+
 struct objectFormat
 {
     std::string className;

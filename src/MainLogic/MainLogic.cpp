@@ -5,7 +5,7 @@ MainLogic::MainLogic(int argc, char* argv[])
     std::vector<std::string> pathsArr;
     std::string programName = argv[0];
 
-    for (size_t i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
         pathsArr.emplace_back(argv[i]);
     }
@@ -63,7 +63,9 @@ void MainLogic::runThreads()
 
 void MainLogic::startLogging()
 {
-    TRTLog::Init(programInfo::name, programInfo::version, TRTLogSenderToFile(_fileName, logging::loggerAppendFlag, logging::logDirectory));
+    TRTLog::Init(programInfo::name, programInfo::version,
+                 TRTLogSenderToFile(_fileName, logging::loggerAppendFlag, logging::logDirectory));
+
     rtlog(INFO) << _fileName + _fileExtension;
 }
 
