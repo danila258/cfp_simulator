@@ -85,7 +85,7 @@ void ObjectRowWidget::setId(int id)
     // replace id in varName to new
     if ( _varName.endsWith(QString::number(_defaultObject.id )) )
     {
-        int idLen = QString(_defaultObject.id).size();
+        int idLen = QString::number(_defaultObject.id).size();
 
         // delete id from varName
         for (int i = 0; i < idLen; ++i)

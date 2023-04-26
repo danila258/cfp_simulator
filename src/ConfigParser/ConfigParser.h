@@ -3,9 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <utility>
+
+#include "rapidjson/document.h"
 
 
-struct objectFormat
+struct objectContent
 {
     std::string className;
     std::string varName;
@@ -13,23 +16,29 @@ struct objectFormat
     std::vector<std::string> args;
 };
 
-struct threadFormat
+struct threadContent
 {
     int number;
-    std::vector<objectFormat> objects;
+    std::vector<objectContent> objects;
 };
 
-struct actionFormat
+struct actionContent
 {
     std::string action;
-    std::string className;
-    std::string varName;
-    std::vector<std::string> args;
+    objectContent object;
 };
+
 
 class ConfigParser
 {
+public:
+    ConfigParser(std::string filePath);
 
+    std::vector<std::pair<std::vector<threadContent>, std::vector<actionContent>>> readConfig();
+    void writeConfig(const std::vector<std::pair<std::vector<threadContent>, std::vector<actionContent>>>& config);
+
+private:
+    std::string _filePath;
 };
 
 

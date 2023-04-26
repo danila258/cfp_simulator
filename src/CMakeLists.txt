@@ -34,5 +34,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(${PROJECT_NAME} PRIVATE GUI)
 #target_link_libraries(${PROJECT_NAME} PRIVATE MainLogic)
 #target_link_libraries(${PROJECT_NAME} PRIVATE ObjectFactory)
+target_link_libraries(${PROJECT_NAME} PRIVATE ConfigParser)
+
 
 
