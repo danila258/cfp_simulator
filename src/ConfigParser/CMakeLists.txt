@@ -3,7 +3,7 @@ project(ConfigParser)
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(../lib/rapidjson/include/)
+include_directories(rapidjson/include/)
 
 add_library(${PROJECT_NAME} STATIC ConfigParser.cpp)
 target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
