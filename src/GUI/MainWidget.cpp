@@ -1,11 +1,16 @@
 #include "MainWidget.h"
+#include "UniversalString.h"
+
 
 MainWidget::MainWidget()
 {
-    QVector<QPair<QString, QVector<QPair<QString, QString>>>> def {{"TRTMutex", {{"lock", "true"}, {"ccc", "67"}}},
-                                                                   {"TRTCondition", {{"wait", "false"}}}};
+    ConfigParser config("/home/danila/cpp/cfp_simulator/src/config.json");
+    auto r = config.getThreads();
+    auto g = config.getActions();
 
-    _objectCreatorWidget = new ObjectCreatorWidget(def, this);
+    config.writeConfig(r, g);
+
+    _objectCreatorWidget = new ObjectCreatorWidget(this);
 
     // create layouts
     auto* mainLayout = new QVBoxLayout(this);

@@ -1,21 +1,19 @@
 #ifndef OBJECTROW_H
 #define OBJECTROW_H
 
+#include "DataTransferInterface.h"
+#include "DefaultObjects.h"
+#include "UniversalString.h"
+
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QSpinBox>
+#include <QComboBox>
 #include <QLabel>
 
-#include <QDebug>
-
-
-struct RTLibObject
-{
-    int id;
-    QString varName;
-    QString className;
-    QVector<QPair<QString, QString>> argVal;
-};
+#include <vector>
+#include <memory>
 
 
 class ObjectRowWidget : public QWidget
@@ -23,28 +21,29 @@ class ObjectRowWidget : public QWidget
 Q_OBJECT
 
 public:
-    ObjectRowWidget(RTLibObject defaultObject, QWidget* parent = nullptr);
+    ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWidget* parent = nullptr);
 
-    ~ObjectRowWidget() override;
+    objectContent getUserInput() const;
+    UniversalString getClassName() const;
+    size_t getCount() const;
 
-    QString getClassName() const;
-    RTLibObject getUserInput() const;
-
-    void setValues(const QVector<QString>& values);
-    void setId(int id);
+    void setValues(const std::vector<int>& values);
+    void setId(size_t id);
 
 private slots:
     void varNameChanged(const QString& varName);
+    void countChanged(int count);
 
 private:
-    RTLibObject _defaultObject;
+    size_t _id;
+    size_t _count = 1;
+    UniversalString _className;
+    UniversalString _varName;
 
-    QLineEdit* _idLineEdit;
+    std::shared_ptr<QLineEdit> _idLineEdit;
+    std::shared_ptr<QLineEdit> _varNameLineEdit;
 
-    QString _varName;
-    QLineEdit* _varNameLineEdit;
-
-    QVector<QLineEdit*> _lineEdits;
+    std::vector<std::shared_ptr<QWidget>> _fields;
 };
 
 

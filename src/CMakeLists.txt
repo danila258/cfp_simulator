@@ -27,6 +27,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/GUI)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ObjectFactory)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ConfigParser)
 add_subdirectory(${PROJECT_SOURCE_DIR}/WorkerThreads)
+add_subdirectory(${PROJECT_SOURCE_DIR}/Common)
+
+include_directories(${PROJECT_SOURCE_DIR}/lib/rapidjson/include)
 
 add_executable(${PROJECT_NAME} main.cpp)
 

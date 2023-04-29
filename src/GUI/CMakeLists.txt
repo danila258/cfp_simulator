@@ -6,4 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 add_library(${PROJECT_NAME} STATIC MainWidget.cpp ObjectCreatorWidget.cpp ObjectRowWidget.cpp)
 target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+                      Common
+                      ConfigParser
+                      Qt${QT_VERSION_MAJOR}::Widgets)

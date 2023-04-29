@@ -1,44 +1,34 @@
 #ifndef CONFIGPARSER_H
 #define CONFIGPARSER_H
 
+#include "UniversalString.h"
+#include "DataTransferInterface.h"
+
+#include "rapidjson/include/rapidjson/document.h"
+#include "rapidjson/include/rapidjson/ostreamwrapper.h"
+#include "rapidjson/include/rapidjson/prettywriter.h"
+
 #include <string>
 #include <vector>
-#include <utility>
-
-#include "rapidjson/document.h"
-
-
-struct objectContent
-{
-    std::string className;
-    std::string varName;
-    int count;
-    std::vector<std::string> args;
-};
-
-struct threadContent
-{
-    int number;
-    std::vector<objectContent> objects;
-};
-
-struct actionContent
-{
-    std::string action;
-    objectContent object;
-};
+#include <fstream>
+#include <sstream>
 
 
 class ConfigParser
 {
 public:
-    ConfigParser(std::string filePath);
+    explicit ConfigParser(std::string filePath);
 
-    std::vector<std::pair<std::vector<threadContent>, std::vector<actionContent>>> readConfig();
-    void writeConfig(const std::vector<std::pair<std::vector<threadContent>, std::vector<actionContent>>>& config);
+    std::vector<threadContent> getThreads();
+    std::vector<actionContent> getActions();
+
+    void writeConfig(const std::vector<threadContent>& threads, const std::vector<actionContent>& actions);
 
 private:
     std::string _filePath;
+
+    rapidjson::Document getParsedDocument();
+    static rapidjson::Value getValue(const UniversalString& str, rapidjson::Document::AllocatorType& allocator);
 };
 
 

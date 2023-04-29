@@ -1,0 +1,3 @@
+[submodule "src/ConfigParser/rapidjson"]
+	path = src/ConfigParser/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

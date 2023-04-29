@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "ConfigParser.h"
 #include "ObjectCreatorWidget.h"
+#include "DataTransferInterface.h"
 
 #include <QWindow>
 #include <QHBoxLayout>
