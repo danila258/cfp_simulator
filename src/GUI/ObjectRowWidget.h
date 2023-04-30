@@ -30,6 +30,9 @@ public:
     void setValues(const std::vector<int>& values);
     void setId(size_t id);
 
+signals:
+    void updateCountSignal();
+
 private slots:
     void varNameChanged(const QString& varName);
     void countChanged(int count);

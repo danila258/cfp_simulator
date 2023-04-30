@@ -161,4 +161,5 @@ void ObjectRowWidget::varNameChanged(const QString& varName)
 void ObjectRowWidget::countChanged(int count)
 {
     _count = count;
+    emit updateCountSignal();
 }

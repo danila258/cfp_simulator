@@ -11,6 +11,7 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QPushButton>
+#include <QDebug>
 
 #include <random>
 #include <algorithm>
@@ -18,10 +19,15 @@
 
 class ObjectCreatorWidget : public QWidget
 {
+Q_OBJECT
+
 public:
     explicit ObjectCreatorWidget(QWidget* parent = nullptr);
 
     std::vector<objectContent> getObjects();
+
+public slots:
+    void updateCountSlot();
 
 private slots:
     void addButtonClicked();

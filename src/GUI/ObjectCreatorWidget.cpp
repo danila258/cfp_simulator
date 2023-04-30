@@ -54,6 +54,18 @@ std::vector<objectContent> ObjectCreatorWidget::getObjects()
     return objects;
 }
 
+void ObjectCreatorWidget::updateCountSlot()
+{
+    _curIndex = 0;
+
+    for (size_t i = 0; i < _objectRowWidgetsList->count(); ++i)
+    {
+        ObjectRowWidget* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
+        widget->setId(_curIndex);
+        _curIndex += widget->getCount();
+    }
+}
+
 void ObjectCreatorWidget::addButtonClicked()
 {
     auto* item = new QListWidgetItem( _objectRowWidgetsList.get() );
@@ -62,7 +74,11 @@ void ObjectCreatorWidget::addButtonClicked()
 
     size_t arrIndex = _list->currentIndex();
 
-    _objectRowWidgetsList->setItemWidget(item, new ObjectRowWidget(gui::defaultObjects[arrIndex], _curIndex, this));
+    // connect rowWidget with this*
+    auto* rowWidget = new ObjectRowWidget(gui::defaultObjects[arrIndex], _curIndex, this);
+    connect(rowWidget, SIGNAL(updateCountSignal()), SLOT(updateCountSlot()));
+
+    _objectRowWidgetsList->setItemWidget(item, rowWidget);
     ++_curIndex;
 }
 
@@ -76,13 +92,7 @@ void ObjectCreatorWidget::removeButtonClicked()
         delete _objectRowWidgetsList->takeItem(_objectRowWidgetsList->row(item));
     }
 
-    _curIndex = 0;
-    for (size_t i = 0; i < _objectRowWidgetsList->count(); ++i)
-    {
-        ObjectRowWidget* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
-        widget->setId(i);
-        _curIndex += widget->getCount();
-    }
+    updateCountSlot();
 }
 
 void ObjectCreatorWidget::setDefaultButtonClicked()
