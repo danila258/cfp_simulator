@@ -1,15 +1,15 @@
 #include "Objects.h"
 
-const std::string TRTMutexObject::_typeName = "TRTMutex";
-const std::string TRTBinSemaphoreObject::_typeName = "TRTBinSemaphore";
-const std::string TRTQueObject::_typeName = "TRTQue";
-const std::string TRTSysTimerObject::_typeName = "TRTSysTimer";
-const std::string TRTEventObject::_typeName = "TRTEvent";
-const std::string TRTCondVarObject::_typeName = "TRTCondVar";
-const std::string TRTSharedMemoryObject::_typeName = "TRTSharedMemory";
+const UniversalString TRTMutexObject::_typeName = "TRTMutex";
+const UniversalString TRTBinSemaphoreObject::_typeName = "TRTBinSemaphore";
+const UniversalString TRTQueObject::_typeName = "TRTQue";
+const UniversalString TRTSysTimerObject::_typeName = "TRTSysTimer";
+const UniversalString TRTEventObject::_typeName = "TRTEvent";
+const UniversalString TRTCondVarObject::_typeName = "TRTCondVar";
+const UniversalString TRTSharedMemoryObject::_typeName = "TRTSharedMemory";
 
 
-void checkArgsCount(const std::vector<std::string>& args, int size)
+void checkArgsCount(const std::vector<UniversalString>& args, size_t size)
 {
     if (args.size() != size)
     {
@@ -18,7 +18,7 @@ void checkArgsCount(const std::vector<std::string>& args, int size)
 }
 
 
-TRTMutexObject::TRTMutexObject(const std::vector<std::string>& args) try
+TRTMutexObject::TRTMutexObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 0);
     _object = {new TRTMutex, DELETER(TRTMutex*)};
@@ -28,7 +28,7 @@ catch (...)
     throw;
 }
 
-void TRTMutexObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTMutexObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {
     if (funcName == "Lock")
     {
@@ -40,17 +40,17 @@ void TRTMutexObject::call(const std::string& funcName, const std::vector<std::st
     }
     else
     {
-        throw std::runtime_error("unknown func");
+        throw std::runtime_error("unknown function name");
     }
 }
 
-const std::string& TRTMutexObject::staticTypeName()
+const UniversalString& TRTMutexObject::staticTypeName()
 {
     return _typeName;
 }
 
 
-TRTBinSemaphoreObject::TRTBinSemaphoreObject(const std::vector<std::string>& args) try
+TRTBinSemaphoreObject::TRTBinSemaphoreObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 1);
     _object = {new TRTBinSemaphore( std::stoi(args[0]) ), DELETER(TRTBinSemaphore*)};
@@ -60,16 +60,16 @@ catch (...)
    throw;
 }
 
-void TRTBinSemaphoreObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTBinSemaphoreObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {}
 
-const std::string& TRTBinSemaphoreObject::staticTypeName()
+const UniversalString& TRTBinSemaphoreObject::staticTypeName()
 {
     return _typeName;
 }
 
 
-TRTQueObject::TRTQueObject(const std::vector<std::string>& args) try
+TRTQueObject::TRTQueObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 2);
     _object = {new TRTQue(std::stoi(args[0]), std::stoi(args[1])), DELETER(TRTQue*)};
@@ -79,16 +79,16 @@ catch (...)
     throw;
 }
 
-void TRTQueObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTQueObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {}
 
-const std::string& TRTQueObject::staticTypeName()
+const UniversalString& TRTQueObject::staticTypeName()
 {
     return _typeName;
 }
 
 
-TRTSysTimerObject::TRTSysTimerObject(const std::vector<std::string>& args) try
+TRTSysTimerObject::TRTSysTimerObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 0);
     _object = {new TRTSysTimer(), DELETER(TRTSysTimer*)};
@@ -98,16 +98,16 @@ catch (...)
     throw;
 }
 
-void TRTSysTimerObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTSysTimerObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {}
 
-const std::string& TRTSysTimerObject::staticTypeName()
+const UniversalString& TRTSysTimerObject::staticTypeName()
 {
     return _typeName;
 }
 
 
-TRTEventObject::TRTEventObject(const std::vector<std::string>& args) try
+TRTEventObject::TRTEventObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 2);
     _object = {new TRTEvent(std::stoi(args[0]), std::stoi(args[1])), DELETER(TRTEvent*)};
@@ -117,16 +117,16 @@ catch (...)
     throw;
 }
 
-void TRTEventObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTEventObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {}
 
-const std::string& TRTEventObject::staticTypeName()
+const UniversalString& TRTEventObject::staticTypeName()
 {
     return _typeName;
 }
 
 
-TRTCondVarObject::TRTCondVarObject(const std::vector<std::string>& args) try
+TRTCondVarObject::TRTCondVarObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 0);
     _object = {new TRTCondVar(), DELETER(TRTCondVar*)};
@@ -136,29 +136,29 @@ catch (...)
     throw;
 }
 
-void TRTCondVarObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTCondVarObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {}
 
-const std::string& TRTCondVarObject::staticTypeName()
+const UniversalString& TRTCondVarObject::staticTypeName()
 {
     return _typeName;
 }
 
 
-TRTSharedMemoryObject::TRTSharedMemoryObject(const std::vector<std::string>& args) try
+TRTSharedMemoryObject::TRTSharedMemoryObject(const std::vector<UniversalString>& args) try
 {
     checkArgsCount(args, 3);
-    _object = {new TRTSharedMemory(args[0].c_str(), std::stoi(args[1]), std::stoi(args[2])), DELETER(TRTSharedMemory*)};
+    _object = {new TRTSharedMemory(args[0]->toStdString().data(), std::stoi(args[1]), std::stoi(args[2])), DELETER(TRTSharedMemory*)};
 }
 catch (...)
 {
     throw;
 }
 
-void TRTSharedMemoryObject::call(const std::string& funcName, const std::vector<std::string>& args)
+void TRTSharedMemoryObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {}
 
-const std::string& TRTSharedMemoryObject::staticTypeName()
+const UniversalString& TRTSharedMemoryObject::staticTypeName()
 {
     return _typeName;
 }

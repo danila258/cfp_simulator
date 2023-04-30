@@ -8,5 +8,6 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
                       Common
+                      MainLogic
                       ConfigParser
                       Qt${QT_VERSION_MAJOR}::Widgets)

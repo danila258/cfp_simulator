@@ -12,5 +12,7 @@ include_directories(${PROJECT_NAME}
                     ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/syns
                     ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/data)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC RTLib3)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+                      Common
+                      RTLib3)
 

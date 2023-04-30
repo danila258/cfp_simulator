@@ -1,12 +1,30 @@
 #include "MainWidget.h"
+#include "MainLogic.h"
+
 #include <QApplication>
 
-int main(int argc, char* argv[])
+#include <iostream>
+
+
+int main(int argc, char* argv[]) try
 {
-    QApplication app(argc, argv);
+    MainLogic logic(argc, argv);
 
-    auto* a = new MainWidget();
-    a->show();
+    if ( logic.hasGUI() )
+    {
+        QApplication app(argc, argv);
 
-    return app.exec();
+        auto* gui = new MainWidget();
+        gui->show();
+
+        return QApplication::exec();
+    }
+    else
+    {
+        logic.run();
+    }
+}
+catch (std::exception& e)
+{
+    std::cerr << e.what() << std::endl;
 }

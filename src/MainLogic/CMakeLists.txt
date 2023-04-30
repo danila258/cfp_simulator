@@ -8,7 +8,8 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 
 include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/log)
 
-target_link_libraries(${PROJECT_NAME}
-                      PUBLIC ConfigParser
-                      PUBLIC WorkerThreads
-                      PUBLIC RTLib3)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+                      Common
+                      ConfigParser
+                      WorkerThreads
+                      )

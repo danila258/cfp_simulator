@@ -4,6 +4,7 @@
 #include "ConfigParser.h"
 #include "ObjectCreatorWidget.h"
 #include "DataTransferInterface.h"
+#include "MainLogic.h"
 
 #include <QWindow>
 #include <QHBoxLayout>
@@ -22,7 +23,12 @@ public:
     MainWidget();
 
 private:
-    ObjectCreatorWidget* _objectCreatorWidget;
+    std::shared_ptr<ObjectCreatorWidget> _objectCreatorWidget;
+
+private slots:
+    void openButtonSlot();
+    void saveButtonSlot();
+    void runButtonSlot();
 };
 
 

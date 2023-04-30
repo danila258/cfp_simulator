@@ -29,15 +29,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/ConfigParser)
 add_subdirectory(${PROJECT_SOURCE_DIR}/WorkerThreads)
 add_subdirectory(${PROJECT_SOURCE_DIR}/Common)
 
-include_directories(${PROJECT_SOURCE_DIR}/lib/rapidjson/include)
-
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(${PROJECT_NAME} PRIVATE GUI)
-#target_link_libraries(${PROJECT_NAME} PRIVATE MainLogic)
-#target_link_libraries(${PROJECT_NAME} PRIVATE ObjectFactory)
-target_link_libraries(${PROJECT_NAME} PRIVATE ConfigParser)
-
-
-
+target_link_libraries(${PROJECT_NAME} PRIVATE MainLogic)

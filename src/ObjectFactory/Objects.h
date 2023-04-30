@@ -2,6 +2,7 @@
 #define OBJECTS_H
 
 #include "ObjectFactory.h"
+#include "UniversalString.h"
 
 #include "task/TRTThread.h"
 #include "sync/TRTMutex.h"
@@ -16,90 +17,90 @@
 #define CALL(T, func) static_cast<T>(_object.get())->func
 
 
-void checkArgsCount(const std::vector<std::string>& args, int size);
+void checkArgsCount(const std::vector<UniversalString>& args, size_t size);
 
 
 class TRTMutexObject : public Object
 {
 public:
-    explicit TRTMutexObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTMutexObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTMutex
+    static const UniversalString _typeName;   // TRTMutex
 };
 
 
 class TRTBinSemaphoreObject : public Object
 {
 public:
-    explicit TRTBinSemaphoreObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTBinSemaphoreObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTBinSemaphore
+    static const UniversalString _typeName;   // TRTBinSemaphore
 };
 
 
 class TRTQueObject : public Object
 {
 public:
-    explicit TRTQueObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTQueObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTQue
+    static const UniversalString _typeName;   // TRTQue
 };
 
 
 class TRTSysTimerObject : public Object
 {
 public:
-    explicit TRTSysTimerObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTSysTimerObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTSysTimer
+    static const UniversalString _typeName;   // TRTSysTimer
 };
 
 
 class TRTEventObject : public Object
 {
 public:
-    explicit TRTEventObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTEventObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTEvent
+    static const UniversalString _typeName;   // TRTEvent
 };
 
 
 class TRTCondVarObject : public Object
 {
 public:
-    explicit TRTCondVarObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTCondVarObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTCondVar
+    static const UniversalString _typeName;   // TRTCondVar
 };
 
 
 class TRTSharedMemoryObject : public Object
 {
 public:
-    explicit TRTSharedMemoryObject(const std::vector<std::string>& args);
-    void call(const std::string& funcName, const std::vector<std::string>& args) override;
-    static const std::string& staticTypeName();
+    explicit TRTSharedMemoryObject(const std::vector<UniversalString>& args);
+    void call(const UniversalString& funcName, const std::vector<UniversalString>& args) override;
+    static const UniversalString& staticTypeName();
 
 private:
-    static const std::string _typeName;   // TRTSharedMemory
+    static const UniversalString _typeName;   // TRTSharedMemory
 };
 
 

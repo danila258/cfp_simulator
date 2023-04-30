@@ -1,6 +1,6 @@
 #include "ConfigParser.h"
 
-ConfigParser::ConfigParser(std::string filePath) : _filePath(std::move(filePath))
+ConfigParser::ConfigParser(UniversalString filePath) : _filePath(std::move(filePath))
 {}
 
 std::vector<threadContent> ConfigParser::getThreads() try
@@ -181,11 +181,11 @@ void ConfigParser::writeConfig(const std::vector<threadContent>& threads, const 
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     doc.Accept(writer);
 
-    std::ofstream file("/home/danila/Downloads/test");
+    std::ofstream file(_filePath);
 
     if ( !file.is_open() )
     {
-        throw std::runtime_error(std::string("can't open file: ") + _filePath);
+        throw std::runtime_error( UniversalString("can't open file: ")->append(_filePath).toStdString() );
     }
 
     file << buffer.GetString();
@@ -204,7 +204,7 @@ rapidjson::Document ConfigParser::getParsedDocument()
 
     if ( !file.is_open() )
     {
-        throw std::runtime_error(std::string("can't open file: ") + _filePath);
+        throw std::runtime_error( UniversalString("can't open file: ")->append(_filePath).toStdString() );
     }
 
     std::ostringstream sstr;

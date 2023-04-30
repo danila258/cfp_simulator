@@ -17,7 +17,7 @@
 class ConfigParser
 {
 public:
-    explicit ConfigParser(std::string filePath);
+    explicit ConfigParser(UniversalString filePath);
 
     std::vector<threadContent> getThreads();
     std::vector<actionContent> getActions();
@@ -25,7 +25,7 @@ public:
     void writeConfig(const std::vector<threadContent>& threads, const std::vector<actionContent>& actions);
 
 private:
-    std::string _filePath;
+    UniversalString _filePath;
 
     rapidjson::Document getParsedDocument();
     static rapidjson::Value getValue(const UniversalString& str, rapidjson::Document::AllocatorType& allocator);

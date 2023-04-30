@@ -1,6 +1,6 @@
 #include "ObjectFactory.h"
 
-std::unique_ptr<Object> ObjectFactory::create(const std::string& className, const std::vector<std::string>& args)
+std::unique_ptr<Object> ObjectFactory::create(const UniversalString& className, const std::vector<UniversalString>& args)
 {
     auto it = _typeMap.find(className);
 
