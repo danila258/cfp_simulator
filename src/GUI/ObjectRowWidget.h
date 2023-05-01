@@ -22,12 +22,13 @@ Q_OBJECT
 
 public:
     ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWidget* parent = nullptr);
+    ObjectRowWidget(const defaultObject& defaultObj, size_t id, const objectContent& object, QWidget* parent = nullptr);
 
     objectContent getUserInput() const;
     UniversalString getClassName() const;
     size_t getCount() const;
 
-    void setValues(const std::vector<int>& values);
+    void setValues(const std::vector<UniversalString>& values);
     void setId(size_t id);
 
 signals:
@@ -45,6 +46,7 @@ private:
 
     std::shared_ptr<QLineEdit> _idLineEdit;
     std::shared_ptr<QLineEdit> _varNameLineEdit;
+    std::shared_ptr<QSpinBox> _countSpinBox;
 
     std::vector<std::shared_ptr<QWidget>> _fields;
 };

@@ -14,14 +14,14 @@ int main(int argc, char* argv[]) try
     {
         QApplication app(argc, argv);
 
-        auto* gui = new MainWidget();
+        auto* gui = new MainWidget(logic);
         gui->show();
 
         return QApplication::exec();
     }
     else
     {
-        logic.run();
+        logic.runFromConsole();
     }
 }
 catch (std::exception& e)

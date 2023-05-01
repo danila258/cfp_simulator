@@ -1,54 +1,38 @@
 #include "MainLogic.h"
 
+#include <utility>
+
 MainLogic::MainLogic(int argc, char* argv[]) : _programName(argv[0])
 {
     for (int i = 1; i < argc; ++i)
     {
-        _pathsArr.emplace_back(argv[i]);
+        _paths.emplace_back(argv[i]);
     }
 }
 
-MainLogic::MainLogic(const std::vector<UniversalString>& pathsArr, const UniversalString& programName, bool logFlag)
-                     : _pathsArr(pathsArr), _programName(programName), _logFlag(logFlag)
-{}
-
-void MainLogic::run() try
+void MainLogic::runFromConsole() try
 {
     // find flag which disable logging and after delete it
-    auto it = std::find(_pathsArr.begin(), _pathsArr.end(), flags::disableLog);
+    auto it = std::find(_paths.begin(), _paths.end(), flags::disableLog);
 
-    if (it != _pathsArr.end())
+    if (it != _paths.end())
     {
         _logFlag = false;
-        _pathsArr.erase(it);
+        _paths.erase(it);
     }
 
-    if (_pathsArr.size() == 1)
+    if (_paths.size() == 0)
     {
         std::cerr << "missing file path" << '\n';
     }
-    else if (_pathsArr.size() == 2)
+    else if (_paths.size() == 1)
     {
-        _configPath = _pathsArr.back();
+        _configPath = _paths.back();
         runThreads();
     }
     else
     {
-        for (const auto& path : _pathsArr)
-        {
-            // an explicit flush of std::cout is also necessary before a call to std::system
-            std::cout.flush();
-
-            std::string command = _programName;
-            command.append(" ").append(path);
-
-            if ( !_logFlag )
-            {
-                command += flags::disableLog;
-            }
-
-            std::system( command.c_str() );
-        }
+        runProgramInstances();
     }
 }
 catch (...)
@@ -56,17 +40,50 @@ catch (...)
     throw;
 }
 
+// run a new instance of the program for each configuration file
+void MainLogic::runProgramInstances()
+{
+    for (const auto& path : _paths)
+    {
+        // an explicit flush of std::cout is also necessary before a call to std::system
+        std::cout.flush();
+
+        std::string command = _programName;
+        command.append(" ").append(path);
+        command.append(" ").append(flags::disableGui);
+
+        if ( !_logFlag )
+        {
+            command.append(" ").append(flags::disableLog);
+        }
+
+        std::system( command.c_str() );
+    }
+}
+
 bool MainLogic::hasGUI()
 {
     // find flag which disable GUI
-    auto it = std::find(_pathsArr.begin(), _pathsArr.end(), flags::disableGui);
+    auto it = std::find(_paths.begin(), _paths.end(), flags::disableGui);
 
-    if (it == _pathsArr.end())
+    if (it == _paths.end())
     {
         return true;
     }
 
+    _paths.erase(it);
+
     return false;
+}
+
+void MainLogic::setPaths(const std::vector<UniversalString>& paths)
+{
+    _paths = paths;
+}
+
+std::vector<UniversalString> MainLogic::getPaths()
+{
+    return _paths;
 }
 
 void MainLogic::runThreads() try

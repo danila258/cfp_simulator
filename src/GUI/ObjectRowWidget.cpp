@@ -60,13 +60,25 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
     }
 
     // count spin box
-    auto* countSpinBox = new QSpinBox(this);
-    connect(countSpinBox, SIGNAL(valueChanged(int)), this, SLOT(countChanged(int)));
-    countSpinBox->setRange(1, 1000);
-    countSpinBox->setValue(_count);
-    mainLayout->addWidget(countSpinBox);
+    _countSpinBox.reset(new QSpinBox(this));
+    connect(_countSpinBox.get(), SIGNAL(valueChanged(int)), this, SLOT(countChanged(int)));
+    _countSpinBox->setRange(1, 1000);
+    _countSpinBox->setValue(_count);
+    mainLayout->addWidget( _countSpinBox.get() );
 
     this->setLayout(mainLayout);
+}
+
+ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, const objectContent& object, QWidget* parent)
+    : ObjectRowWidget(defaultObj, id, parent)
+{
+    _varName = object.varName;
+    _varNameLineEdit->setText(_varName);
+
+    _count = object.count;
+    _countSpinBox->setValue(object.count);
+
+    setValues(object.args);
 }
 
 objectContent ObjectRowWidget::getUserInput() const
@@ -107,7 +119,7 @@ size_t ObjectRowWidget::getCount() const
     return _count;
 }
 
-void ObjectRowWidget::setValues(const std::vector<int>& values)
+void ObjectRowWidget::setValues(const std::vector<UniversalString>& values)
 {
     size_t index = 0;
 
@@ -117,15 +129,15 @@ void ObjectRowWidget::setValues(const std::vector<int>& values)
 
         if (className == "QSpinBox")
         {
-            qobject_cast<QSpinBox*>(field.get())->setValue(values[index]);
+            qobject_cast<QSpinBox*>(field.get())->setValue( std::stoi(values[index]) );
         }
         else if (className == "QComboBox")
         {
-            qobject_cast<QComboBox*>(field.get())->setCurrentIndex(values[index] % 2);
+            qobject_cast<QComboBox*>(field.get())->setCurrentIndex(std::stoi(values[index]) % 2);
         }
         else if (className == "QLineEdit")
         {
-            qobject_cast<QLineEdit*>(field.get())->setText( QString::number(values[index]) );
+            qobject_cast<QLineEdit*>(field.get())->setText(values[index]);
         }
 
         ++index;

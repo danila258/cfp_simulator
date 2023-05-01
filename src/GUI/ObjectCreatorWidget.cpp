@@ -9,7 +9,7 @@ ObjectCreatorWidget::ObjectCreatorWidget(QWidget* parent)
     auto* secondRowButtons = new QHBoxLayout();
 
     // add objects names to list
-    for (auto object : gui::defaultObjects)
+    for (const auto& object : gui::defaultObjects)
     {
         _list->addItem(object.className);
     }
@@ -41,6 +41,18 @@ ObjectCreatorWidget::ObjectCreatorWidget(QWidget* parent)
     mainLayout->addWidget( _objectRowWidgetsList.get() );
 }
 
+void ObjectCreatorWidget::setObjects(const std::vector<objectContent>& objects)
+{
+    _objectRowWidgetsList->clear();
+    _curId = 0;
+
+    for (const auto& object : objects)
+    {
+        _objectRowWidgetsList->setItemWidget(getItem(), new ObjectRowWidget(findDefault(object.className), _curId, this));
+        _curId += object.count;
+    }
+}
+
 std::vector<objectContent> ObjectCreatorWidget::getObjects()
 {
     std::vector<objectContent> objects;
@@ -48,7 +60,7 @@ std::vector<objectContent> ObjectCreatorWidget::getObjects()
     // get all objects from list
     for (size_t i = 0; i < _objectRowWidgetsList->count(); ++i)
     {
-        ObjectRowWidget* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
+        auto* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
         objects.emplace_back(widget->getUserInput());
     }
 
@@ -57,37 +69,33 @@ std::vector<objectContent> ObjectCreatorWidget::getObjects()
 
 void ObjectCreatorWidget::updateCountSlot()
 {
-    _curIndex = 0;
+    _curId = 0;
 
     for (size_t i = 0; i < _objectRowWidgetsList->count(); ++i)
     {
-        ObjectRowWidget* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
-        widget->setId(_curIndex);
-        _curIndex += widget->getCount();
+        auto* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
+        widget->setId(_curId);
+        _curId += widget->getCount();
     }
 }
 
 void ObjectCreatorWidget::addButtonClicked()
 {
-    auto* item = new QListWidgetItem( _objectRowWidgetsList.get() );
-    item->setSizeHint(QSize(100, 100));
-    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-
     size_t arrIndex = _list->currentIndex();
 
     // connect rowWidget with this*
-    auto* rowWidget = new ObjectRowWidget(gui::defaultObjects[arrIndex], _curIndex, this);
+    auto* rowWidget = new ObjectRowWidget(gui::defaultObjects[arrIndex], _curId, this);
     connect(rowWidget, SIGNAL(updateCountSignal()), SLOT(updateCountSlot()));
 
-    _objectRowWidgetsList->setItemWidget(item, rowWidget);
-    ++_curIndex;
+    _objectRowWidgetsList->setItemWidget(getItem(), rowWidget);
+    ++_curId;
 }
 
 void ObjectCreatorWidget::removeButtonClicked()
 {
     for (auto item : _objectRowWidgetsList->selectedItems())
     {
-        _curIndex -= getRow(item)->getCount();
+        _curId -= getRow(item)->getCount();
 
         _objectRowWidgetsList->removeItemWidget(item);
         delete _objectRowWidgetsList->takeItem(_objectRowWidgetsList->row(item));
@@ -100,11 +108,11 @@ void ObjectCreatorWidget::setDefaultButtonClicked()
 {
     for (auto item : _objectRowWidgetsList->selectedItems())
     {
-        std::vector<int> values;
+        std::vector<UniversalString> values;
 
         for (auto& object : findDefault(getRow(item)->getClassName()).fields)
         {
-            values.emplace_back( object.val->toInt() );
+            values.emplace_back( object.val);
         }
 
         getRow(item)->setValues(values);
@@ -120,15 +128,24 @@ void ObjectCreatorWidget::setRandomButtonClicked()
         std::uniform_int_distribution<int> distribution(8, 100);
         auto dice = std::bind(distribution, generator);
 
-        std::vector<int> values;
+        std::vector<UniversalString> values;
 
         for (size_t i = 0; i < findDefault(getRow(item)->getClassName()).fields.size(); ++i)
         {
-            values.emplace_back( dice() );
+            values.emplace_back( QString::number(dice()) );
         }
 
         getRow(item)->setValues(values);
     }
+}
+
+QListWidgetItem* ObjectCreatorWidget::getItem()
+{
+    auto* item = new QListWidgetItem( _objectRowWidgetsList.get() );
+    item->setSizeHint(QSize(100, 100));
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+    return item;
 }
 
 ObjectRowWidget* ObjectCreatorWidget::getRow(QListWidgetItem* item)

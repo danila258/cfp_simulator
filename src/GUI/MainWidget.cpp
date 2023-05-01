@@ -1,18 +1,24 @@
 #include "MainWidget.h"
-#include "UniversalString.h"
 
 
-MainWidget::MainWidget() : _objectCreatorWidget(new ObjectCreatorWidget(this))
+MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
 {
-    ConfigParser config("/home/danila/cpp/cfp_simulator/src/config.json");
-    auto r = config.getThreads();
-    auto g = config.getActions();
-
-    config.writeConfig(r, g);
-
     // create layouts
     auto* mainLayout = new QVBoxLayout(this);
+    auto* widgetsLayout = new QHBoxLayout();
     auto* buttonsLayout = new QHBoxLayout();
+
+    // add configs widget
+    _configsWidget.reset(new ConfigsWidget(this));
+    widgetsLayout->addWidget( _configsWidget.get() );
+
+    // add thread tree widget
+    _threadsTreeWidget.reset(new ThreadsTreeWidget({}, this));
+    widgetsLayout->addWidget( _threadsTreeWidget.get() );
+
+    // add object creator widget
+    _objectCreatorWidget.reset(new ObjectCreatorWidget(this));
+    widgetsLayout->addWidget( _objectCreatorWidget.get() );
 
     // create buttons
     auto* openButton = new QPushButton("Open", this);
@@ -25,18 +31,24 @@ MainWidget::MainWidget() : _objectCreatorWidget(new ObjectCreatorWidget(this))
     connect(runButton, SIGNAL(clicked()), this, SLOT(runButtonSlot()));
 
     // add widgets to layouts
-    mainLayout->addWidget( _objectCreatorWidget.get() );
-
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveButton);
     buttonsLayout->addWidget(runButton);
 
     // config main layout
+    mainLayout->addLayout(widgetsLayout);
     mainLayout->addLayout(buttonsLayout);
     this->setLayout(mainLayout);
 
     // set window size
     this->setMinimumSize(1600, 800);
+}
+
+void MainWidget::changeThreadSlot(int index)
+{
+    _threadsContent[_threadIndex] = _objectCreatorWidget->getObjects();
+    _objectCreatorWidget->setObjects(_threadsContent[index]);
+    _threadIndex = index;
 }
 
 void MainWidget::openButtonSlot()
@@ -59,8 +71,8 @@ void MainWidget::runButtonSlot()
 
     parser.writeConfig(threads, {});
 
-    std::vector<UniversalString> paths = {"cfp_simulator", "test.json"};
+    std::vector<UniversalString> paths = {"test.json"};
 
-    MainLogic mainLogic(paths, "cfp_simulator");
-    mainLogic.run();
+    _logic.setPaths(paths);
+    _logic.runProgramInstances();
 }

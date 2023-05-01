@@ -36,17 +36,21 @@ class MainLogic
 {
 public:
     MainLogic(int argc, char* argv[]);
-    MainLogic(const std::vector<UniversalString>& pathsArr, const UniversalString& programName, bool logFlag = true);
 
-    void run();
+    void runFromConsole();
+    void runProgramInstances();
+
     bool hasGUI();
+
+    void setPaths(const std::vector<UniversalString>& paths);
+    std::vector<UniversalString> getPaths();
 
 private:
     void runThreads();
     void startLogging();
     void parsingFileNameExtension();
 
-    std::vector<UniversalString> _pathsArr;
+    std::vector<UniversalString> _paths;
     std::string _programName;
 
     std::string _configPath;

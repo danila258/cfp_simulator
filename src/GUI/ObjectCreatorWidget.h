@@ -24,6 +24,7 @@ Q_OBJECT
 public:
     explicit ObjectCreatorWidget(QWidget* parent = nullptr);
 
+    void setObjects(const std::vector<objectContent>& objects);
     std::vector<objectContent> getObjects();
 
 public slots:
@@ -39,10 +40,11 @@ private:
     std::shared_ptr<QListWidget> _objectRowWidgetsList;
     std::shared_ptr<QComboBox> _list;
 
-    size_t _curIndex = 0;
+    size_t _curId = 0;
 
+    QListWidgetItem* getItem();
     ObjectRowWidget* getRow(QListWidgetItem* item);
-    defaultObject findDefault(const UniversalString& name);
+    static defaultObject findDefault(const UniversalString& name);
 };
 
 
