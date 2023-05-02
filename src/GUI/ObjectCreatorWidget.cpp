@@ -22,11 +22,18 @@ ObjectCreatorWidget::ObjectCreatorWidget(QWidget* parent)
     auto* setRandomButton = new QPushButton("Set random", this);
 
     // connect buttons with slots
-    connect(addButton, &QPushButton::clicked, this, &ObjectCreatorWidget::addButtonClicked);
-    connect(removeButton, &QPushButton::clicked, this, &ObjectCreatorWidget::removeButtonClicked);
+    connect(addButton, SIGNAL(clicked()), this, SLOT(addButtonSlot()));
+    connect(addButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
 
-    connect(setDefaultButton, &QPushButton::clicked, this, &ObjectCreatorWidget::setDefaultButtonClicked);
-    connect(setRandomButton, &QPushButton::clicked, this, &ObjectCreatorWidget::setRandomButtonClicked);
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(removeButtonSlot()));
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
+
+
+    connect(setDefaultButton, SIGNAL(clicked()), this, SLOT(setDefaultButtonSlot()));
+    connect(setDefaultButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
+
+    connect(setRandomButton, SIGNAL(clicked()), this, SLOT(setRandomButtonSlot()));
+    connect(setRandomButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
 
     // add objects to layouts
     firstRowButtons->addWidget( _list.get() );
@@ -79,7 +86,7 @@ void ObjectCreatorWidget::updateCountSlot()
     }
 }
 
-void ObjectCreatorWidget::addButtonClicked()
+void ObjectCreatorWidget::addButtonSlot()
 {
     size_t arrIndex = _list->currentIndex();
 
@@ -91,7 +98,7 @@ void ObjectCreatorWidget::addButtonClicked()
     ++_curId;
 }
 
-void ObjectCreatorWidget::removeButtonClicked()
+void ObjectCreatorWidget::removeButtonSlot()
 {
     for (auto item : _objectRowWidgetsList->selectedItems())
     {
@@ -104,7 +111,7 @@ void ObjectCreatorWidget::removeButtonClicked()
     updateCountSlot();
 }
 
-void ObjectCreatorWidget::setDefaultButtonClicked()
+void ObjectCreatorWidget::setDefaultButtonSlot()
 {
     for (auto item : _objectRowWidgetsList->selectedItems())
     {
@@ -119,7 +126,7 @@ void ObjectCreatorWidget::setDefaultButtonClicked()
     }
 }
 
-void ObjectCreatorWidget::setRandomButtonClicked()
+void ObjectCreatorWidget::setRandomButtonSlot()
 {
     for (auto item : _objectRowWidgetsList->selectedItems())
     {
@@ -137,6 +144,11 @@ void ObjectCreatorWidget::setRandomButtonClicked()
 
         getRow(item)->setValues(values);
     }
+}
+
+void ObjectCreatorWidget::userInputSlot()
+{
+    emit updateThreadSignal( getObjects() );
 }
 
 QListWidgetItem* ObjectCreatorWidget::getItem()

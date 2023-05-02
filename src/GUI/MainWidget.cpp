@@ -14,10 +14,19 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
 
     // add thread tree widget
     _threadsTreeWidget.reset(new ThreadsTreeWidget({}, this));
+    connect(_threadsTreeWidget.get(), SIGNAL(changeThreadSignal(int)), this, SLOT(changeThreadIndexSlot(int)));
+    connect(_threadsTreeWidget.get(), SIGNAL(addThreadSignal()), this, SLOT(addThreadSlot()));
+    connect(_threadsTreeWidget.get(), SIGNAL(removeThreadSignal(int)), this, SLOT(removeThreadSlot(int)));
+    connect(this, SIGNAL(updateThreadTreeSignal(const std::vector<objectContent>&)),
+            _threadsTreeWidget.get(), SLOT(updateCurrentThread(const std::vector<objectContent>&)));
     widgetsLayout->addWidget( _threadsTreeWidget.get() );
+
+    _threadsContent.emplace_back();
 
     // add object creator widget
     _objectCreatorWidget.reset(new ObjectCreatorWidget(this));
+    connect(_objectCreatorWidget.get(), SIGNAL(updateThreadSignal(const std::vector<objectContent>&)),
+            this, SLOT(updateThreadContentSlot(const std::vector<objectContent>&)));
     widgetsLayout->addWidget( _objectCreatorWidget.get() );
 
     // create buttons
@@ -44,11 +53,27 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     this->setMinimumSize(1600, 800);
 }
 
-void MainWidget::changeThreadSlot(int index)
+void MainWidget::changeThreadIndexSlot(int index)
 {
     _threadsContent[_threadIndex] = _objectCreatorWidget->getObjects();
     _objectCreatorWidget->setObjects(_threadsContent[index]);
     _threadIndex = index;
+}
+
+void MainWidget::addThreadSlot()
+{
+    _threadsContent.emplace_back();
+}
+
+void MainWidget::removeThreadSlot(int index)
+{
+    _threadsContent.erase(_threadsContent.begin() + index);
+}
+
+void MainWidget::updateThreadContentSlot(const std::vector<objectContent>& content)
+{
+    _threadsContent[_threadIndex] = content;
+    emit updateThreadTreeSignal(_threadsContent[_threadIndex]);
 }
 
 void MainWidget::openButtonSlot()

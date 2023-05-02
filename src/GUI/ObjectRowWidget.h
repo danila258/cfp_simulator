@@ -32,6 +32,7 @@ public:
     void setId(size_t id);
 
 signals:
+    void updateObjectSignal();
     void updateCountSignal();
 
 private slots:

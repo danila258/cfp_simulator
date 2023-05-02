@@ -27,14 +27,18 @@ public:
     void setObjects(const std::vector<objectContent>& objects);
     std::vector<objectContent> getObjects();
 
+signals:
+    void updateThreadSignal(const std::vector<objectContent>& content);
+
 public slots:
     void updateCountSlot();
 
 private slots:
-    void addButtonClicked();
-    void removeButtonClicked();
-    void setDefaultButtonClicked();
-    void setRandomButtonClicked();
+    void addButtonSlot();
+    void removeButtonSlot();
+    void setDefaultButtonSlot();
+    void setRandomButtonSlot();
+    void userInputSlot();
 
 private:
     std::shared_ptr<QListWidget> _objectRowWidgetsList;

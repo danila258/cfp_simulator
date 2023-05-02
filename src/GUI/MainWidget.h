@@ -9,7 +9,6 @@
 #include "DataTransferInterface.h"
 #include "MainLogic.h"
 
-#include <QWindow>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -26,7 +25,13 @@ public:
     explicit MainWidget(MainLogic& logic);
 
 public slots:
-    void changeThreadSlot(int index);
+    void changeThreadIndexSlot(int index);
+    void addThreadSlot();
+    void removeThreadSlot(int index);
+    void updateThreadContentSlot(const std::vector<objectContent>& content);
+
+signals:
+    void updateThreadTreeSignal(const std::vector<objectContent>& content);
 
 private:
     MainLogic& _logic;
