@@ -15,6 +15,7 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
 
     // id line edit
     _idLineEdit.reset(new QLineEdit(QString::number(_id), this));
+    connect(_idLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(updateObjectSlot()));
     _idLineEdit->setDisabled(true);
     mainLayout->addWidget( _idLineEdit.get() );
 
@@ -24,7 +25,8 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
 
     // varName line edit
     _varNameLineEdit.reset(new QLineEdit(_varName, this));
-    connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(varNameChanged(const QString&)));
+    connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(varNameSlot(const QString&)));
+    connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(updateObjectSlot()));
     mainLayout->addWidget( _varNameLineEdit.get() );
 
     // create label and line edit for each argument with default value
@@ -38,21 +40,27 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
         if (field.type == "int")
         {
             ptr.reset(new QSpinBox(this));
+            auto* spinBox = qobject_cast<QSpinBox*>( ptr.get() );
 
-            qobject_cast<QSpinBox*>(ptr.get())->setRange(0, 1000);
-            qobject_cast<QSpinBox*>(ptr.get())->setValue( field.val->toInt() );
+            connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(updateObjectSlot()));
+            spinBox->setRange(0, 1000);
+            spinBox->setValue( field.val->toInt() );
         }
         else if (field.type == "bool")
         {
             ptr.reset(new QComboBox(this));
+            auto* comboBox = qobject_cast<QComboBox*>( ptr.get() );
 
-            qobject_cast<QComboBox*>(ptr.get())->addItem("false");
-            qobject_cast<QComboBox*>(ptr.get())->addItem("true");
-            qobject_cast<QComboBox*>(ptr.get())->setCurrentIndex( field.val->toInt() );
+            connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateObjectSlot()));
+            comboBox->addItem("false");
+            comboBox->addItem("true");
+            comboBox->setCurrentIndex( field.val->toInt() );
         }
         else
         {
             ptr.reset(new QLineEdit(field.val, this));
+            connect(qobject_cast<QLineEdit*>( ptr.get() ), SIGNAL(textChanged(const QString&)),
+                    this, SLOT(updateObjectSlot()));
         }
 
         mainLayout->addWidget( ptr.get() );
@@ -61,7 +69,8 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
 
     // count spin box
     _countSpinBox.reset(new QSpinBox(this));
-    connect(_countSpinBox.get(), SIGNAL(valueChanged(int)), this, SLOT(countChanged(int)));
+    connect(_countSpinBox.get(), SIGNAL(valueChanged(int)), this, SLOT(countSlot(int)));
+    connect(_countSpinBox.get(), SIGNAL(valueChanged(int)), this, SLOT(updateObjectSlot()));
     _countSpinBox->setRange(1, 1000);
     _countSpinBox->setValue(_count);
     mainLayout->addWidget( _countSpinBox.get() );
@@ -165,13 +174,18 @@ void ObjectRowWidget::setId(size_t id)
     _id = id;
 }
 
-void ObjectRowWidget::varNameChanged(const QString& varName)
+void ObjectRowWidget::varNameSlot(const QString& varName)
 {
     _varName = varName;
 }
 
-void ObjectRowWidget::countChanged(int count)
+void ObjectRowWidget::countSlot(int count)
 {
     _count = count;
     emit updateCountSignal();
+}
+
+void ObjectRowWidget::updateObjectSlot()
+{
+    emit updateObjectSignal();
 }

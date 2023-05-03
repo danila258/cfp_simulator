@@ -48,10 +48,12 @@ void ThreadsTreeWidget::setThreads(const std::vector<std::vector<objectContent>>
     // add first thread
     if ( threads.empty() )
     {
-        items.append( getThreadItem() );
+        auto* item = getThreadItem();
+        items.append( item );
     }
 
     _treeWidget->insertTopLevelItems(0, items);
+    _treeWidget->setCurrentItem( _treeWidget->topLevelItem(0) );
 }
 
 void ThreadsTreeWidget::updateCurrentThread(const std::vector<objectContent>& content)

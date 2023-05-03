@@ -55,7 +55,7 @@ void ObjectCreatorWidget::setObjects(const std::vector<objectContent>& objects)
 
     for (const auto& object : objects)
     {
-        _objectRowWidgetsList->setItemWidget(getItem(), new ObjectRowWidget(findDefault(object.className), _curId, this));
+        _objectRowWidgetsList->setItemWidget(getItem(), new ObjectRowWidget(findDefault(object.className), _curId, object, this));
         _curId += object.count;
     }
 }
@@ -92,6 +92,7 @@ void ObjectCreatorWidget::addButtonSlot()
 
     // connect rowWidget with this*
     auto* rowWidget = new ObjectRowWidget(gui::defaultObjects[arrIndex], _curId, this);
+    connect(rowWidget, SIGNAL(updateObjectSignal()), SLOT(userInputSlot()));
     connect(rowWidget, SIGNAL(updateCountSignal()), SLOT(updateCountSlot()));
 
     _objectRowWidgetsList->setItemWidget(getItem(), rowWidget);

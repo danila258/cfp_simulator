@@ -43,7 +43,7 @@ private:
     size_t _threadIndex = 0;
     size_t _configIndex = 0;
 
-    std::vector<std::vector<objectContent>> _threadsContent;
+    std::vector<threadContent> _threadsContent;
 
 private slots:
     void openButtonSlot();

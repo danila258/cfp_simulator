@@ -36,8 +36,9 @@ signals:
     void updateCountSignal();
 
 private slots:
-    void varNameChanged(const QString& varName);
-    void countChanged(int count);
+    void varNameSlot(const QString& varName);
+    void countSlot(int count);
+    void updateObjectSlot();
 
 private:
     size_t _id;

@@ -55,14 +55,14 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
 
 void MainWidget::changeThreadIndexSlot(int index)
 {
-    _threadsContent[_threadIndex] = _objectCreatorWidget->getObjects();
-    _objectCreatorWidget->setObjects(_threadsContent[index]);
+    _threadsContent[_threadIndex].objects = _objectCreatorWidget->getObjects();
+    _objectCreatorWidget->setObjects(_threadsContent[index].objects);
     _threadIndex = index;
 }
 
 void MainWidget::addThreadSlot()
 {
-    _threadsContent.emplace_back();
+    _threadsContent.push_back({_threadsContent.size(), {}});
 }
 
 void MainWidget::removeThreadSlot(int index)
@@ -72,8 +72,7 @@ void MainWidget::removeThreadSlot(int index)
 
 void MainWidget::updateThreadContentSlot(const std::vector<objectContent>& content)
 {
-    _threadsContent[_threadIndex] = content;
-    emit updateThreadTreeSignal(_threadsContent[_threadIndex]);
+    _threadsContent[_threadIndex].objects = content;
 }
 
 void MainWidget::openButtonSlot()
@@ -89,12 +88,7 @@ void MainWidget::saveButtonSlot()
 void MainWidget::runButtonSlot()
 {
     ConfigParser parser("test.json");
-
-    std::vector<threadContent> threads;
-    threads.emplace_back();
-    threads.back().objects = _objectCreatorWidget->getObjects();
-
-    parser.writeConfig(threads, {});
+    parser.writeConfig(_threadsContent, {});
 
     std::vector<UniversalString> paths = {"test.json"};
 

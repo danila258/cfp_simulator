@@ -10,13 +10,13 @@ struct objectContent
 {
     UniversalString className;
     UniversalString varName;
-    int count;
+    size_t count;
     std::vector<UniversalString> args;
 };
 
 struct threadContent
 {
-    int number;
+    size_t number;
     std::vector<objectContent> objects;
 };
 
