@@ -11,6 +11,7 @@
 #include <QSpinBox>
 #include <QComboBox>
 #include <QLabel>
+#include <QDebug>
 
 #include <vector>
 #include <memory>

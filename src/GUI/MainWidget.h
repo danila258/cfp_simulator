@@ -12,6 +12,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QSpacerItem>
 #include <QVector>
 
 #include <memory>

@@ -9,6 +9,7 @@
 #include <QListWidget>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QSpacerItem>
 #include <QComboBox>
 #include <QPushButton>
 #include <QDebug>

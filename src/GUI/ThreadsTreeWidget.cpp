@@ -56,7 +56,7 @@ void ThreadsTreeWidget::setThreads(const std::vector<std::vector<objectContent>>
     _treeWidget->setCurrentItem( _treeWidget->topLevelItem(0) );
 }
 
-void ThreadsTreeWidget::updateCurrentThread(const std::vector<objectContent>& content)
+void ThreadsTreeWidget::updateThreadTreeSlot(const std::vector<objectContent>& content)
 {
     QTreeWidgetItem* item = _treeWidget->currentItem();
 
@@ -76,6 +76,27 @@ void ThreadsTreeWidget::updateCurrentThread(const std::vector<objectContent>& co
 QTreeWidgetItem* ThreadsTreeWidget::getThreadItem()
 {
     return new QTreeWidgetItem(static_cast<QTreeWidget*>(nullptr), QStringList(QString("Thread: %1").arg(_treeWidget->topLevelItemCount() + 1)));
+}
+
+std::vector<QTreeWidgetItem*> ThreadsTreeWidget::getThreadChildItems(const std::vector<objectContent>& objects)
+{
+    std::unordered_map<std::string, int> map;
+
+    for (auto& object : objects)
+    {
+        auto it = map.find(object.className);
+
+        if (it == map.end())
+        {
+            map[object.className] = object.count;
+        }
+        else
+        {
+            it->second += object.count;
+        }
+    }
+
+    return {};
 }
 
 QTreeWidgetItem* ThreadsTreeWidget::getChildItem(QTreeWidgetItem* parent, const objectContent& object)
@@ -113,9 +134,9 @@ void ThreadsTreeWidget::changeThreadSlot(QTreeWidgetItem* current, QTreeWidgetIt
     // only root items have not parent
     if (current->parent() != nullptr)
     {
-        changeThreadSignal( _treeWidget->indexOfTopLevelItem(current->parent()) );
+        changeThreadIndexSignal(_treeWidget->indexOfTopLevelItem(current->parent()));
         return;
     }
 
-    changeThreadSignal(_treeWidget->indexOfTopLevelItem(current));
+    changeThreadIndexSignal(_treeWidget->indexOfTopLevelItem(current));
 }

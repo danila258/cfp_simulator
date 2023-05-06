@@ -11,6 +11,8 @@
 #include <QVBoxLayout>
 #include <QDebug>
 
+#include <unordered_map>
+
 
 class ThreadsTreeWidget : public QWidget
 {
@@ -22,18 +24,18 @@ public:
     void setThreads(const std::vector<std::vector<objectContent>>& threads);
 
 public slots:
-    void updateCurrentThread(const std::vector<objectContent>& content);
+    void updateThreadTreeSlot(const std::vector<objectContent>& content);
 
 signals:
-    void changeThreadSignal(int);
+    void changeThreadIndexSignal(int);
     void addThreadSignal();
     void removeThreadSignal(int);
-
 
 private:
     std::shared_ptr<QTreeWidget> _treeWidget;
 
     QTreeWidgetItem* getThreadItem();
+    std::vector<QTreeWidgetItem*> getThreadChildItems(const std::vector<objectContent>& objects);
     QTreeWidgetItem* getChildItem(QTreeWidgetItem* parent, const objectContent& object);
 
 private slots:
