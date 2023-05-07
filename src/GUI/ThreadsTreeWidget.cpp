@@ -38,11 +38,7 @@ void ThreadsTreeWidget::setThreads(const std::vector<std::vector<objectContent>>
     for (const auto & thread : threads)
     {
         items.append( getThreadItem() );
-
-        for (const auto& object : thread)
-        {
-            items.back()->addChild( getChildItem(items.back(), object) );
-        }
+        items.back()->addChildren( getThreadChildItems(items.back(), thread) );
     }
 
     // add first thread
@@ -67,20 +63,28 @@ void ThreadsTreeWidget::updateThreadTreeSlot(const std::vector<objectContent>& c
     }
 
     // add new children
-    for (const auto& object : content)
-    {
-        item->addChild(getChildItem(item, object));
-    }
+    item->addChildren( getThreadChildItems(item, content) );
 }
 
 QTreeWidgetItem* ThreadsTreeWidget::getThreadItem()
 {
-    return new QTreeWidgetItem(static_cast<QTreeWidget*>(nullptr), QStringList(QString("Thread: %1").arg(_treeWidget->topLevelItemCount() + 1)));
+    return new QTreeWidgetItem( static_cast<QTreeWidget*>(nullptr),QStringList(getThreadName()) );
 }
 
-std::vector<QTreeWidgetItem*> ThreadsTreeWidget::getThreadChildItems(const std::vector<objectContent>& objects)
+QString ThreadsTreeWidget::getThreadName()
 {
-    std::unordered_map<std::string, int> map;
+    return getThreadName(_treeWidget->topLevelItemCount());
+}
+
+QString ThreadsTreeWidget::getThreadName(int n)
+{
+    return QString("Thread: %1").arg(n);
+}
+
+QList<QTreeWidgetItem*> ThreadsTreeWidget::getThreadChildItems(QTreeWidgetItem* parent, const std::vector<objectContent>& objects)
+{
+    std::unordered_map<QString, int> map;
+    QList<QTreeWidgetItem*> items;
 
     for (auto& object : objects)
     {
@@ -96,14 +100,13 @@ std::vector<QTreeWidgetItem*> ThreadsTreeWidget::getThreadChildItems(const std::
         }
     }
 
-    return {};
-}
+    for (auto& pair : map)
+    {
+        items.push_back(new QTreeWidgetItem(parent,
+                                            QStringList(QString("%1 %2").arg(pair.first, QString::number(pair.second)))));
+    }
 
-QTreeWidgetItem* ThreadsTreeWidget::getChildItem(QTreeWidgetItem* parent, const objectContent& object)
-{
-    auto* item = new QTreeWidgetItem(parent, QStringList(QString("%1").arg(object.varName)));
-    item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
-    return item;
+    return items;
 }
 
 void ThreadsTreeWidget::addButtonSlot()
@@ -118,20 +121,26 @@ void ThreadsTreeWidget::removeButtonSlot()
 
     for (auto* item : items)
     {
+        // don't delete last thread
         if ( _treeWidget->topLevelItemCount() == 1)
         {
             break;
         }
 
         int index = _treeWidget->indexOfTopLevelItem(item);
-        emit removeThreadSignal(index);
         delete _treeWidget->takeTopLevelItem(index);
+        emit removeThreadSignal(index);
+    }
+
+    for (int i = 0; i < _treeWidget->topLevelItemCount(); ++i)
+    {
+        _treeWidget->topLevelItem(i)->setText(0, getThreadName(i));
     }
 }
 
 void ThreadsTreeWidget::changeThreadSlot(QTreeWidgetItem* current, QTreeWidgetItem* previous)
 {
-    // only root items have not parent
+    // only root items haven't parent
     if (current->parent() != nullptr)
     {
         changeThreadIndexSignal(_treeWidget->indexOfTopLevelItem(current->parent()));

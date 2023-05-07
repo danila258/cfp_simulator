@@ -40,22 +40,20 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     connect(saveButton, SIGNAL(clicked()), this, SLOT(saveButtonSlot()));
     connect(runButton, SIGNAL(clicked()), this, SLOT(runButtonSlot()));
 
-    // add spacer to buttons layout
-    auto* spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    buttonsLayout->addItem(spacer);
-
     // add widgets to layouts
     buttonsLayout->addWidget(openButton);
     buttonsLayout->addWidget(saveButton);
     buttonsLayout->addWidget(runButton);
 
     // config main layout
+    buttonsLayout->setAlignment(Qt::AlignRight);
+
     mainLayout->addLayout(widgetsLayout);
     mainLayout->addLayout(buttonsLayout);
     this->setLayout(mainLayout);
 
     // set window size
-    this->setMinimumSize(3200, 1600);
+    this->setMinimumSize(3600, 1600);
 }
 
 void MainWidget::changeThreadIndexSlot(int index)

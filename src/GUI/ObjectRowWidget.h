@@ -12,9 +12,32 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QDebug>
+#include <QFontMetrics>
+#include <QFont>
 
 #include <vector>
 #include <memory>
+#include <algorithm>
+
+
+int static findMaxClassNameLen()
+{
+    QFont font;
+    QFontMetrics metric(font);
+    int maxPixels = 0;
+
+    for (auto& obj : gui::defaultObjects)
+    {
+        int pixels = metric.width(obj.className + ":");
+
+        if (pixels > maxPixels)
+        {
+            maxPixels = pixels;
+        }
+    }
+
+    return maxPixels;
+}
 
 
 class ObjectRowWidget : public QWidget
@@ -52,6 +75,8 @@ private:
     std::shared_ptr<QSpinBox> _countSpinBox;
 
     std::vector<std::shared_ptr<QWidget>> _fields;
+
+    QHBoxLayout* getFormLayout(QLabel* label, QWidget* field, QWidget* parent = nullptr);
 };
 
 

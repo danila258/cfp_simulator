@@ -6,30 +6,35 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
     auto* mainLayout = new QHBoxLayout(this);
 
     // class name label
-    auto* headerLabel = new QLabel(defaultObj.className + ":   ", this);
+    auto* headerLabel = new QLabel(_className + ":", this);
+    headerLabel->setFixedWidth(findMaxClassNameLen() + 1);
+    headerLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     mainLayout->addWidget(headerLabel);
 
     // id label
     auto* indexLabel = new QLabel("id =", this);
-    mainLayout->addWidget(indexLabel);
 
     // id line edit
     _idLineEdit.reset(new QLineEdit(QString::number(_id), this));
     _idLineEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     connect(_idLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(updateObjectSlot()));
     _idLineEdit->setDisabled(true);
-    mainLayout->addWidget( _idLineEdit.get() );
+
+    mainLayout->addLayout( getFormLayout(indexLabel, _idLineEdit.get(), this) );
 
     // varName label
     auto* varNameLabel = new QLabel("varName =", this);
-    mainLayout->addWidget(varNameLabel);
 
     // varName line edit
     _varNameLineEdit.reset(new QLineEdit(_varName, this));
     _varNameLineEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(varNameSlot(const QString&)));
     connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(updateObjectSlot()));
-    mainLayout->addWidget( _varNameLineEdit.get() );
+
+    mainLayout->addLayout( getFormLayout(varNameLabel, _varNameLineEdit.get(), this) );
+
+    // count label
+    auto* countLabel = new QLabel("count =", this);
 
     // count spin box
     _countSpinBox.reset(new QSpinBox(this));
@@ -37,20 +42,19 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
     connect(_countSpinBox.get(), SIGNAL(valueChanged(int)), this, SLOT(updateObjectSlot()));
     _countSpinBox->setRange(1, 1000);
     _countSpinBox->setValue(_count);
-    mainLayout->addWidget( _countSpinBox.get() );
+
+    mainLayout->addLayout( getFormLayout(countLabel, _countSpinBox.get(), this) );
 
     // create label and line edit for each argument with default value
     for (const auto& field : defaultObj.fields)
     {
         auto* label = new QLabel(field.name + "=", this);
-        mainLayout->addWidget(label);
-
         std::unique_ptr<QWidget> ptr;
 
         if (field.type == "int")
         {
-            ptr.reset(new QSpinBox(this));
-            auto* spinBox = qobject_cast<QSpinBox*>( ptr.get() );
+            auto* spinBox = new QSpinBox(this);
+            ptr.reset(spinBox);
 
             connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(updateObjectSlot()));
             spinBox->setRange(0, 1000);
@@ -58,8 +62,8 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
         }
         else if (field.type == "bool")
         {
-            ptr.reset(new QComboBox(this));
-            auto* comboBox = qobject_cast<QComboBox*>( ptr.get() );
+            auto* comboBox = new QComboBox(this);
+            ptr.reset(comboBox);
 
             connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateObjectSlot()));
             comboBox->addItem("false");
@@ -68,20 +72,21 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
         }
         else
         {
-            ptr.reset(new QLineEdit(field.val, this));
-            connect(qobject_cast<QLineEdit*>( ptr.get() ), SIGNAL(textChanged(const QString&)),
-                    this, SLOT(updateObjectSlot()));
+            auto* lineEdit = new QLineEdit(field.val, this);
+            ptr.reset(lineEdit);
+
+            connect(lineEdit, SIGNAL(textChanged(const QString&)),this, SLOT(updateObjectSlot()));
+            lineEdit->setText(_varName);
         }
 
         ptr->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        mainLayout->addWidget( ptr.get() );
-        _fields.emplace_back( std::move(ptr) );
+        _fields.emplace_back( ptr.get() );
+
+        mainLayout->addLayout(getFormLayout(label, ptr.release(), this) );
     }
 
-    // add spacer to the end of the main layout
-    auto* spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    mainLayout->addItem(spacer);
-
+    mainLayout->setAlignment(Qt::AlignLeft);
+    mainLayout->setSpacing(60);
     this->setLayout(mainLayout);
 }
 
@@ -139,23 +144,16 @@ void ObjectRowWidget::setValues(const std::vector<UniversalString>& values)
 {
     size_t index = 0;
 
-    for (auto& i : values)
-    {
-        qDebug() << i;
-    }
-
     for (const auto& field : _fields)
     {
         UniversalString className = field->metaObject()->className();
 
         if (className == "QSpinBox")
         {
-            qDebug() << values[index];
             qobject_cast<QSpinBox*>(field.get())->setValue( std::stoi(values[index]) );
         }
         else if (className == "QComboBox")
         {
-            qDebug() << values[index];
             qobject_cast<QComboBox*>(field.get())->setCurrentIndex(std::stoi(values[index]) % 2);
         }
         else if (className == "QLineEdit")
@@ -202,4 +200,19 @@ void ObjectRowWidget::countSlot(int count)
 void ObjectRowWidget::updateObjectSlot()
 {
     emit updateObjectSignal();
+}
+
+QHBoxLayout* ObjectRowWidget::getFormLayout(QLabel* label, QWidget* field, QWidget* parent)
+{
+    label->setText(label->text() + " ");
+
+    label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    field->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+    auto* layout = new QHBoxLayout(parent);
+    layout->addWidget(label);
+    layout->addWidget(field);
+    layout->setSpacing(0);
+
+    return layout;
 }

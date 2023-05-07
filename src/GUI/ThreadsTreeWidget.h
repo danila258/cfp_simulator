@@ -35,8 +35,10 @@ private:
     std::shared_ptr<QTreeWidget> _treeWidget;
 
     QTreeWidgetItem* getThreadItem();
-    std::vector<QTreeWidgetItem*> getThreadChildItems(const std::vector<objectContent>& objects);
-    QTreeWidgetItem* getChildItem(QTreeWidgetItem* parent, const objectContent& object);
+    QList<QTreeWidgetItem*> getThreadChildItems(QTreeWidgetItem* parent, const std::vector<objectContent>& objects);
+
+    QString getThreadName();
+    QString getThreadName(int n);
 
 private slots:
     void addButtonSlot();

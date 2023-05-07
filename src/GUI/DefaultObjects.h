@@ -4,6 +4,7 @@
 #include "UniversalString.h"
 
 #include <vector>
+#include <algorithm>
 
 
 struct defaultField
@@ -29,7 +30,7 @@ namespace gui
         {"TRTSysTimer", {}},
         {"TRTEvent", {{"flState", "0", "bool"}, {"manualReset", "0", "bool"}}},
         {"TRTCondVar", {}},
-        {"TRTSharedMemory", {{"cName", "", "string"}, {"lSize", "5", "int"},
+        {"TRTSharedMemory", {{"cName", "TRTSharedMemory", "string"}, {"lSize", "5", "int"},
                                          {"map", "1", "bool"}}},
     };
 }

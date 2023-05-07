@@ -65,10 +65,11 @@ std::vector<objectContent> ObjectCreatorWidget::getObjects()
     std::vector<objectContent> objects;
 
     // get all objects from list
+    qDebug() << _objectRowWidgetsList->count();
     for (size_t i = 0; i < _objectRowWidgetsList->count(); ++i)
     {
         auto* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetsList->itemWidget(_objectRowWidgetsList->item(i)));
-        objects.emplace_back(widget->getUserInput());
+        objects.emplace_back( widget->getUserInput() );
     }
 
     return objects;
