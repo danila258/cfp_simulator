@@ -12,7 +12,7 @@
 #include <QSpacerItem>
 #include <QComboBox>
 #include <QPushButton>
-#include <QDebug>
+#include <QScrollBar>
 
 #include <random>
 #include <algorithm>
@@ -42,8 +42,8 @@ private slots:
     void userInputSlot();
 
 private:
-    std::shared_ptr<QListWidget> _objectRowWidgetsList;
-    std::shared_ptr<QComboBox> _list;
+    std::shared_ptr<QListWidget> _objectRowWidgetList;
+    std::shared_ptr<QComboBox> _classNamelist;
 
     size_t _curId = 0;
 

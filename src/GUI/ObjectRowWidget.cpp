@@ -6,32 +6,29 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
     auto* mainLayout = new QHBoxLayout(this);
 
     // class name label
-    auto* headerLabel = new QLabel(_className + ":", this);
+    auto* headerLabel = new QLabel(_className + ":");
     headerLabel->setFixedWidth(findMaxClassNameLen() + 1);
-    headerLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     mainLayout->addWidget(headerLabel);
 
     // id label
-    auto* indexLabel = new QLabel("id =", this);
+    auto* indexLabel = new QLabel("id =");
 
     // id line edit
-    _idLineEdit.reset(new QLineEdit(QString::number(_id), this));
-    _idLineEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    _idLineEdit.reset(new QLineEdit(QString::number(_id)));
     connect(_idLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(updateObjectSlot()));
     _idLineEdit->setDisabled(true);
 
-    mainLayout->addLayout( getFormLayout(indexLabel, _idLineEdit.get(), this) );
+    mainLayout->addLayout( getFormLayout(indexLabel, _idLineEdit.get()) );
 
     // varName label
-    auto* varNameLabel = new QLabel("varName =", this);
+    auto* varNameLabel = new QLabel("varName =");
 
     // varName line edit
-    _varNameLineEdit.reset(new QLineEdit(_varName, this));
-    _varNameLineEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    _varNameLineEdit.reset(new QLineEdit(_varName));
     connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(varNameSlot(const QString&)));
     connect(_varNameLineEdit.get(), SIGNAL(textChanged(const QString&)), this, SLOT(updateObjectSlot()));
 
-    mainLayout->addLayout( getFormLayout(varNameLabel, _varNameLineEdit.get(), this) );
+    mainLayout->addLayout( getFormLayout(varNameLabel, _varNameLineEdit.get()) );
 
     // count label
     auto* countLabel = new QLabel("count =", this);
@@ -43,7 +40,7 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
     _countSpinBox->setRange(1, 1000);
     _countSpinBox->setValue(_count);
 
-    mainLayout->addLayout( getFormLayout(countLabel, _countSpinBox.get(), this) );
+    mainLayout->addLayout( getFormLayout(countLabel, _countSpinBox.get()) );
 
     // create label and line edit for each argument with default value
     for (const auto& field : defaultObj.fields)
@@ -79,14 +76,13 @@ ObjectRowWidget::ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWi
             lineEdit->setText(_varName);
         }
 
-        ptr->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
         _fields.emplace_back( ptr.get() );
-
-        mainLayout->addLayout(getFormLayout(label, ptr.release(), this) );
+        mainLayout->addLayout(getFormLayout(label, ptr.release()) );
     }
 
     mainLayout->setAlignment(Qt::AlignLeft);
     mainLayout->setSpacing(60);
+
     this->setLayout(mainLayout);
 }
 
@@ -107,7 +103,7 @@ objectContent ObjectRowWidget::getUserInput() const
     objectContent object;
     object.className = _className;
     object.varName = _varName;
-    object.count  = _count;
+    object.count = _count;
 
     for (const auto& field : _fields)
     {
@@ -206,8 +202,8 @@ QHBoxLayout* ObjectRowWidget::getFormLayout(QLabel* label, QWidget* field, QWidg
 {
     label->setText(label->text() + " ");
 
-    label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    field->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    field->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     auto* layout = new QHBoxLayout(parent);
     layout->addWidget(label);

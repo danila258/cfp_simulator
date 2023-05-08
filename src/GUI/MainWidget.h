@@ -31,6 +31,10 @@ public slots:
     void removeThreadSlot(int index);
     void updateThreadContentSlot(const std::vector<objectContent>& content);
 
+    void changeConfigIndexSlot(int index);
+    void addConfigSlot();
+    void removeConfigSlot(int index);
+
 signals:
     void updateThreadTreeSignal(const std::vector<objectContent>& content);
 
@@ -44,7 +48,9 @@ private:
     size_t _threadIndex = 0;
     size_t _configIndex = 0;
 
-    std::vector<threadContent> _threadsContent;
+    std::vector<std::vector<threadContent>> _configs;
+
+    bool _skipUpdateObjectCreator = false;
 
 private slots:
     void openButtonSlot();

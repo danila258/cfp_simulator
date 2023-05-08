@@ -19,9 +19,9 @@ class ThreadsTreeWidget : public QWidget
 Q_OBJECT
 
 public:
-    ThreadsTreeWidget(const std::vector<std::vector<objectContent>>& threads, QWidget* parent = nullptr);
+    ThreadsTreeWidget(const std::vector<threadContent>& threads, QWidget* parent = nullptr);
 
-    void setThreads(const std::vector<std::vector<objectContent>>& threads);
+    void setThreads(const std::vector<threadContent>& threads);
 
 public slots:
     void updateThreadTreeSlot(const std::vector<objectContent>& content);
@@ -35,9 +35,9 @@ private:
     std::shared_ptr<QTreeWidget> _treeWidget;
 
     QTreeWidgetItem* getThreadItem();
+    QTreeWidgetItem* getThreadItem(int n);
     QList<QTreeWidgetItem*> getThreadChildItems(QTreeWidgetItem* parent, const std::vector<objectContent>& objects);
 
-    QString getThreadName();
     QString getThreadName(int n);
 
 private slots:

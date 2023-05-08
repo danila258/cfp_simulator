@@ -5,16 +5,6 @@
 
 #include <iostream>
 
-class Application final : public QApplication {
-public:
-    Application(int &argc, char **argv) : QApplication(argc, argv) {}
-
-    virtual bool notify(QObject *receiver, QEvent *e) override {
-        qDebug() << receiver->objectName() << " " << e->type();
-        return true;
-    }
-};
-
 
 int main(int argc, char* argv[]) try
 {
