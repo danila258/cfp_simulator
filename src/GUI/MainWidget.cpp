@@ -18,6 +18,7 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     connect(_configsWidget.get(), SIGNAL(changeConfigIndexSignal(int)), this, SLOT(changeConfigIndexSlot(int)));
     connect(_configsWidget.get(), SIGNAL(addConfigSignal()), this, SLOT(addConfigSlot()));
     connect(_configsWidget.get(), SIGNAL(removeConfigSignal(int)), this, SLOT(removeConfigSlot(int)));
+    connect(this, SIGNAL(addConfigSignal(const QString&)), _configsWidget.get(), SLOT(addConfigSlot(const QString&)));
 
     widgetsLayout->addWidget( _configsWidget.get() );
 
@@ -135,19 +136,37 @@ void MainWidget::removeConfigSlot(int index)
 
 void MainWidget::openButtonSlot()
 {
+    QStringList paths = QFileDialog::getOpenFileNames(this, tr("Open Files"), "/home", "JSON (*.json)");
 
+    for (auto& path : paths)
+    {
+        qDebug() << "Configs: " << path.mid(path.lastIndexOf("/")) << " " << path;
+
+        ConfigParser parser(path);
+        _configs.emplace_back( parser.getThreads() );
+        emit addConfigSignal( path.mid(path.lastIndexOf("/") + 1).remove(".json") );
+    }
 }
 
 void MainWidget::saveButtonSlot()
 {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/home",
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
+    if ( dir.isEmpty() )
+    {
+        return;
+    }
+
+    ConfigParser parser(dir + "/" + _configsWidget->getConfigName(_configIndex) + ".json");
+    parser.writeConfig(_configs[_configIndex], {});
 }
 
 void MainWidget::runButtonSlot()
 {
     UniversalString fileExtension = ".json";
 
-    UniversalString configName = _configsWidget->getConfigNames()[_configIndex] + fileExtension;
+    UniversalString configName = _configsWidget->getConfigName(_configIndex) + fileExtension;
 
     ConfigParser parser(configName);
     parser.writeConfig(_configs[_configIndex], {});

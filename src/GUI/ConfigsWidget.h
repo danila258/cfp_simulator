@@ -22,6 +22,10 @@ public:
     ConfigsWidget(QWidget* parent = nullptr);
 
     std::vector<UniversalString> getConfigNames();
+    UniversalString getConfigName(int row);
+
+public slots:
+    void addConfigSlot(const QString& config);
 
 signals:
     void changeConfigIndexSignal(int);

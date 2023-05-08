@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QVector>
+#include <QFileDialog>
 
 #include <memory>
 
@@ -37,6 +38,7 @@ public slots:
 
 signals:
     void updateThreadTreeSignal(const std::vector<objectContent>& content);
+    void addConfigSignal(const QString& config);
 
 private:
     MainLogic& _logic;

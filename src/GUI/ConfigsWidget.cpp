@@ -42,6 +42,16 @@ std::vector<UniversalString> ConfigsWidget::getConfigNames()
     return names;
 }
 
+UniversalString ConfigsWidget::getConfigName(int row)
+{
+    return _listWidget->item(row)->text();
+}
+
+void ConfigsWidget::addConfigSlot(const QString& config)
+{
+    _listWidget->addItem(config);
+}
+
 QListWidgetItem* ConfigsWidget::getItem()
 {
     auto* item = new QListWidgetItem("Config" + QString::number(_listWidget->count()));
