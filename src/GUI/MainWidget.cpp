@@ -140,8 +140,6 @@ void MainWidget::openButtonSlot()
 
     for (auto& path : paths)
     {
-        qDebug() << "Configs: " << path.mid(path.lastIndexOf("/")) << " " << path;
-
         ConfigParser parser(path);
         _configs.emplace_back( parser.getThreads() );
         emit addConfigSignal( path.mid(path.lastIndexOf("/") + 1).remove(".json") );
@@ -165,12 +163,28 @@ void MainWidget::saveButtonSlot()
 void MainWidget::runButtonSlot()
 {
     UniversalString fileExtension = ".json";
-
     UniversalString configName = _configsWidget->getConfigName(_configIndex) + fileExtension;
+
+    std::unique_ptr<QMessageBox> logDialog( new QMessageBox(QMessageBox::Question,  "Log", "Do you want to save log?",
+                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this) );
+    int result = logDialog->exec();
+
+    if (result == QMessageBox::Yes)
+    {
+        _logic.setLoggingState(true);
+    }
+    else if (result == QMessageBox::No)
+    {
+        _logic.setLoggingState(false);
+    }
+    else
+    {
+        return;
+    }
 
     ConfigParser parser(configName);
     parser.writeConfig(_configs[_configIndex], {});
 
-    _logic.setPaths({configName});
+    _logic.setPaths( {configName} );
     _logic.runProgramInstances();
 }

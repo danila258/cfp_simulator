@@ -15,6 +15,7 @@
 #include <QSpacerItem>
 #include <QVector>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include <memory>
 

@@ -41,6 +41,7 @@ public:
     void runProgramInstances();
 
     bool hasGUI();
+    void setLoggingState(bool state);
 
     void setPaths(const std::vector<UniversalString>& paths);
     std::vector<UniversalString> getPaths();

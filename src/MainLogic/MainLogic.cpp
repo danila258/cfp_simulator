@@ -76,6 +76,11 @@ bool MainLogic::hasGUI()
     return false;
 }
 
+void MainLogic::setLoggingState(bool state)
+{
+    _logFlag = state;
+}
+
 void MainLogic::setPaths(const std::vector<UniversalString>& paths)
 {
     _paths = paths;
