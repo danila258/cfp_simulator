@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "ObjectCreatorWidget.h"
+#include "ActionWidget.h"
 #include "ThreadsTreeWidget.h"
 #include "ConfigsWidget.h"
 #include "ConfigParser.h"
@@ -9,6 +10,9 @@
 #include "DataTransferInterface.h"
 #include "MainLogic.h"
 
+#include <QApplication>
+#include <QTabWidget>
+#include <QScreen>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -37,6 +41,12 @@ public slots:
     void addConfigSlot();
     void removeConfigSlot(int index);
 
+    void addActionSlot(const actionContent& action);
+    void removeActionSlot(int index);
+    void updateActionsSlot(const std::vector<actionContent>& actions);
+
+    void changeTabSlot(int index);
+
 signals:
     void updateThreadTreeSignal(const std::vector<objectContent>& content);
     void addConfigSignal(const QString& config);
@@ -45,6 +55,7 @@ private:
     MainLogic& _logic;
 
     std::shared_ptr<ObjectCreatorWidget> _objectCreatorWidget;
+    std::shared_ptr<ActionWidget> _actionWidget;
     std::shared_ptr<ThreadsTreeWidget> _threadsTreeWidget;
     std::shared_ptr<ConfigsWidget> _configsWidget;
 
@@ -52,6 +63,7 @@ private:
     size_t _configIndex = 0;
 
     std::vector<std::vector<threadContent>> _configs;
+    std::vector<actionContent> _actions;
 
     bool _skipUpdateObjectCreator = false;
 

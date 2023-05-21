@@ -4,6 +4,7 @@
 #include "UniversalString.h"
 
 #include <vector>
+#include <unordered_map>
 #include <algorithm>
 
 
@@ -14,15 +15,15 @@ struct defaultField
     UniversalString type;
 };
 
-struct defaultObject
+struct defaultParam
 {
-    UniversalString className;
+    UniversalString name;
     std::vector<defaultField> fields;
 };
 
 namespace gui
 {
-    const static std::vector<defaultObject> defaultObjects =
+    const static std::vector<defaultParam> defaultObjects =
     {
         {"TRTMutex", {}},
         {"TRTBinSemaphore", {{"flState", "1", "bool"}}},
@@ -30,8 +31,13 @@ namespace gui
         {"TRTSysTimer", {}},
         {"TRTEvent", {{"flState", "0", "bool"}, {"manualReset", "0", "bool"}}},
         {"TRTCondVar", {}},
-        {"TRTSharedMemory", {{"cName", "TRTSharedMemory", "string"}, {"lSize", "5", "int"},
-                                         {"map", "1", "bool"}}},
+        {"TRTSharedMemory", {{"cName", "TRTSharedMemory", "string"}, {"lSize", "5", "int"}, {"map", "1", "bool"}}},
+    };
+
+    const static std::unordered_map<std::string, std::vector<defaultParam>> actionMap =
+    {
+        {"TRTMutex", { {"Lock", {}}, {"Unlock", {}}}},
+        {"TRTQue", { {"Write", {{"len", "5", "int"}}} }},
     };
 }
 

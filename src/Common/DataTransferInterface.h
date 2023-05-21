@@ -10,6 +10,7 @@ struct objectContent
 {
     UniversalString className;
     UniversalString varName;
+    size_t startId;
     size_t count;
     std::vector<UniversalString> args;
 };
@@ -22,8 +23,11 @@ struct threadContent
 
 struct actionContent
 {
+    size_t thread;
     UniversalString action;
     UniversalString className;
+    size_t id;
+    double pause = 0;
     UniversalString varName;
     UniversalString funcName;
     std::vector<UniversalString> args;

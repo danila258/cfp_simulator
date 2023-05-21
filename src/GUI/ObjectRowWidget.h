@@ -26,9 +26,9 @@ int static findMaxClassNameLen()
     QFontMetrics metric(font);
     int maxPixels = 0;
 
-    for (auto& obj : gui::defaultObjects)
+    for (const auto& obj : gui::defaultObjects)
     {
-        int pixels = metric.width(obj.className + ":");
+        int pixels = metric.width(obj.name + ":");
 
         if (pixels > maxPixels)
         {
@@ -42,14 +42,17 @@ int static findMaxClassNameLen()
 
 class ObjectRowWidget : public QWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    ObjectRowWidget(const defaultObject& defaultObj, size_t id, QWidget* parent = nullptr);
-    ObjectRowWidget(const defaultObject& defaultObj, size_t id, const objectContent& object, QWidget* parent = nullptr);
+    ObjectRowWidget(const defaultParam& defaultObj, size_t id, QWidget* parent = nullptr);
+    ObjectRowWidget(const defaultParam& defaultObj, size_t id, const objectContent& object, QWidget* parent = nullptr);
+    ObjectRowWidget(const defaultParam& defaultObj, QWidget* parent = nullptr);
+    ObjectRowWidget(const actionContent& action, QWidget* parent);
 
     objectContent getUserInput() const;
     UniversalString getClassName() const;
+    size_t getId() const;
     size_t getCount() const;
 
     void setValues(const std::vector<UniversalString>& values);
@@ -77,6 +80,7 @@ private:
     std::vector<std::shared_ptr<QWidget>> _fields;
 
     QHBoxLayout* getFormLayout(QLabel* label, QWidget* field, QWidget* parent = nullptr);
+    void addDefaultFields(QHBoxLayout* layout, const defaultParam& defaultObj);
 };
 
 

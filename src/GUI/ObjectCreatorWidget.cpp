@@ -1,7 +1,7 @@
 #include "ObjectCreatorWidget.h"
 
-ObjectCreatorWidget::ObjectCreatorWidget(QWidget* parent)
-    : QWidget(parent), _objectRowWidgetList(new QListWidget(this)), _classNamelist(new QComboBox(this))
+ObjectCreatorWidget::ObjectCreatorWidget(size_t thread, QWidget* parent)
+    : QWidget(parent), _objectRowWidgetList(new QListWidget(this)), _classNamelist(new QComboBox(this)), _thread(thread)
 {
     // create layouts
     auto* mainLayout = new QVBoxLayout();
@@ -11,33 +11,36 @@ ObjectCreatorWidget::ObjectCreatorWidget(QWidget* parent)
     // add objects names to list
     for (const auto& object : gui::defaultObjects)
     {
-        _classNamelist->addItem(object.className);
+        _classNamelist->addItem(object.name);
     }
 
     // create buttons
-    auto* addButton = new QPushButton("Add", this);
-    auto* removeButton = new QPushButton("Remove", this);
+    auto* addObjectButton = new QPushButton("Add object", this);
+    auto* addActionButton = new QPushButton("Add action...", this);
 
+    auto* removeButton = new QPushButton("Remove", this);
     auto* setDefaultButton = new QPushButton("Set default", this);
     auto* setRandomButton = new QPushButton("Set random", this);
 
     // connect buttons with slots
-    connect(addButton, SIGNAL(clicked()), this, SLOT(addButtonSlot()));
-    connect(addButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
+    connect(addObjectButton, SIGNAL(clicked()), this, SLOT(addObjectSlot()));
+    connect(addObjectButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
 
-    connect(removeButton, SIGNAL(clicked()), this, SLOT(removeButtonSlot()));
+    connect(addActionButton, SIGNAL(clicked()), this, SLOT(addActionSlot()));
+
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(removeObjectSlot()));
     connect(removeButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
 
-
-    connect(setDefaultButton, SIGNAL(clicked()), this, SLOT(setDefaultButtonSlot()));
+    connect(setDefaultButton, SIGNAL(clicked()), this, SLOT(setDefaultSlot()));
     connect(setDefaultButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
 
-    connect(setRandomButton, SIGNAL(clicked()), this, SLOT(setRandomButtonSlot()));
+    connect(setRandomButton, SIGNAL(clicked()), this, SLOT(setRandomSlot()));
     connect(setRandomButton, SIGNAL(clicked()), this, SLOT(userInputSlot()));
 
     // add objects to layouts
     firstRowButtons->addWidget(_classNamelist.get() );
-    firstRowButtons->addWidget(addButton);
+    firstRowButtons->addWidget(addObjectButton);
+    firstRowButtons->addWidget(addActionButton);
 
     secondRowButtons->addWidget(removeButton);
     secondRowButtons->addWidget(setDefaultButton);
@@ -50,15 +53,16 @@ ObjectCreatorWidget::ObjectCreatorWidget(QWidget* parent)
     this->setLayout(mainLayout);
 }
 
-void ObjectCreatorWidget::setObjects(const std::vector<objectContent>& objects)
+void ObjectCreatorWidget::setObjects(size_t thread, const std::vector<objectContent>& objects)
 {
     _objectRowWidgetList->clear();
-    _curId = 0;
+    _thread = thread;
+    _id = 0;
 
     for (const auto& object : objects)
     {
-        _objectRowWidgetList->setItemWidget(getItem(), new ObjectRowWidget(findDefault(object.className), _curId, object, this));
-        _curId += object.count;
+        _objectRowWidgetList->setItemWidget(getItem(), new ObjectRowWidget(findDefault(object.className), _id, object, this));
+        _id += object.count;
     }
 }
 
@@ -67,7 +71,7 @@ std::vector<objectContent> ObjectCreatorWidget::getObjects()
     std::vector<objectContent> objects;
 
     // get all objects from list
-    for (size_t i = 0; i < _objectRowWidgetList->count(); ++i)
+    for (int i = 0; i < _objectRowWidgetList->count(); ++i)
     {
         auto* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetList->itemWidget(_objectRowWidgetList->item(i)));
         objects.emplace_back( widget->getUserInput() );
@@ -78,34 +82,52 @@ std::vector<objectContent> ObjectCreatorWidget::getObjects()
 
 void ObjectCreatorWidget::updateCountSlot()
 {
-    _curId = 0;
+    _id = 0;
 
-    for (size_t i = 0; i < _objectRowWidgetList->count(); ++i)
+    for (int i = 0; i < _objectRowWidgetList->count(); ++i)
     {
         auto* widget = qobject_cast<ObjectRowWidget*>(_objectRowWidgetList->itemWidget(_objectRowWidgetList->item(i)));
-        widget->setId(_curId);
-        _curId += widget->getCount();
+        widget->setId(_id);
+        _id += widget->getCount();
     }
 }
 
-void ObjectCreatorWidget::addButtonSlot()
+void ObjectCreatorWidget::addObjectSlot()
 {
     size_t arrIndex = _classNamelist->currentIndex();
 
     // connect rowWidget with this*
-    auto* rowWidget = new ObjectRowWidget(gui::defaultObjects[arrIndex], _curId, this);
+    auto* rowWidget = new ObjectRowWidget(gui::defaultObjects[arrIndex], _id, this);
     connect(rowWidget, SIGNAL(updateObjectSignal()), SLOT(userInputSlot()));
     connect(rowWidget, SIGNAL(updateCountSignal()), SLOT(updateCountSlot()));
 
     _objectRowWidgetList->setItemWidget(getItem(), rowWidget);
-    ++_curId;
+    ++_id;
 }
 
-void ObjectCreatorWidget::removeButtonSlot()
+void ObjectCreatorWidget::addActionSlot()
 {
     for (auto item : _objectRowWidgetList->selectedItems())
     {
-        _curId -= getRow(item)->getCount();
+        auto* row = getRow(item);
+        auto className = row->getClassName();
+        std::unique_ptr<ActionDialog> dialog( new ActionDialog(_thread, className, gui::actionMap.find(className)->second,
+                                                               row->getId(), row->getId() + row->getCount() - 1, this) );
+        dialog->show();
+        auto result = dialog->exec();
+
+        if (result == QDialog::Accepted)
+        {
+            emit addActionSignal( dialog->getAction() );
+        }
+    }
+}
+
+void ObjectCreatorWidget::removeObjectSlot()
+{
+    for (auto item : _objectRowWidgetList->selectedItems())
+    {
+        _id -= getRow(item)->getCount();
 
         _objectRowWidgetList->removeItemWidget(item);
         delete _objectRowWidgetList->takeItem(_objectRowWidgetList->row(item));
@@ -114,7 +136,7 @@ void ObjectCreatorWidget::removeButtonSlot()
     updateCountSlot();
 }
 
-void ObjectCreatorWidget::setDefaultButtonSlot()
+void ObjectCreatorWidget::setDefaultSlot()
 {
     for (auto item : _objectRowWidgetList->selectedItems())
     {
@@ -129,7 +151,7 @@ void ObjectCreatorWidget::setDefaultButtonSlot()
     }
 }
 
-void ObjectCreatorWidget::setRandomButtonSlot()
+void ObjectCreatorWidget::setRandomSlot()
 {
     for (auto item : _objectRowWidgetList->selectedItems())
     {
@@ -168,10 +190,10 @@ ObjectRowWidget* ObjectCreatorWidget::getRow(QListWidgetItem* item)
     return qobject_cast<ObjectRowWidget*>(_objectRowWidgetList->itemWidget(item));
 }
 
-defaultObject ObjectCreatorWidget::findDefault(const UniversalString& name)
+defaultParam ObjectCreatorWidget::findDefault(const UniversalString& name)
 {
-    auto it = std::find_if(gui::defaultObjects.begin(), gui::defaultObjects.end(), [&name](const defaultObject& object) {
-        return object.className == name;
+    auto it = std::find_if(gui::defaultObjects.begin(), gui::defaultObjects.end(), [&name](const defaultParam& object) {
+        return object.name == name;
     });
 
     if (it != gui::defaultObjects.end())

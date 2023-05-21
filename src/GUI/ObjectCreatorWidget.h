@@ -2,6 +2,7 @@
 #define OBJECTCREATERWIDGET_H
 
 #include "ObjectRowWidget.h"
+#include "ActionDialog.h"
 #include "DataTransferInterface.h"
 #include "DefaultObjects.h"
 
@@ -20,36 +21,39 @@
 
 class ObjectCreatorWidget : public QWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    explicit ObjectCreatorWidget(QWidget* parent = nullptr);
+    explicit ObjectCreatorWidget(size_t thread, QWidget* parent = nullptr);
 
-    void setObjects(const std::vector<objectContent>& objects);
+    void setObjects(size_t thread, const std::vector<objectContent>& objects);
     std::vector<objectContent> getObjects();
 
 signals:
     void updateThreadSignal(const std::vector<objectContent>& content);
+    void addActionSignal(const actionContent& action);
 
 public slots:
     void updateCountSlot();
 
 private slots:
-    void addButtonSlot();
-    void removeButtonSlot();
-    void setDefaultButtonSlot();
-    void setRandomButtonSlot();
+    void addObjectSlot();
+    void addActionSlot();
+    void removeObjectSlot();
+    void setDefaultSlot();
+    void setRandomSlot();
     void userInputSlot();
 
 private:
     std::shared_ptr<QListWidget> _objectRowWidgetList;
     std::shared_ptr<QComboBox> _classNamelist;
 
-    size_t _curId = 0;
+    size_t _thread;
+    size_t _id = 0;
 
     QListWidgetItem* getItem();
     ObjectRowWidget* getRow(QListWidgetItem* item);
-    static defaultObject findDefault(const UniversalString& name);
+    static defaultParam findDefault(const UniversalString& name);
 };
 
 

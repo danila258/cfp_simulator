@@ -33,21 +33,32 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
 
     widgetsLayout->addWidget( _threadsTreeWidget.get() );
 
+    // add tab widget
+    auto* tabWidget = new QTabWidget(this);
+    widgetsLayout->addWidget(tabWidget, 1);
+
     // add object creator widget
-    _objectCreatorWidget.reset(new ObjectCreatorWidget(this));
+    _objectCreatorWidget.reset(new ObjectCreatorWidget(_threadIndex, this));
 
     connect(_objectCreatorWidget.get(), SIGNAL(updateThreadSignal(const std::vector<objectContent>&)),
             this, SLOT(updateThreadContentSlot(const std::vector<objectContent>&)));
+    connect(_objectCreatorWidget.get(), SIGNAL(addActionSignal(const actionContent&)),
+            this, SLOT(addActionSlot(const actionContent&)));
 
-    widgetsLayout->addWidget( _objectCreatorWidget.get(), 1);
+    tabWidget->addTab(_objectCreatorWidget.get(), "Objects");
+
+    // add action widget
+    _actionWidget.reset( new ActionWidget(_actions, this) );
+    tabWidget->addTab(_actionWidget.get(), "Actions");
 
     // create buttons
-    int buttonWidth = 200;
-    auto* openButton = new QPushButton("Open", this);
+    int buttonWidth = QApplication::primaryScreen()->availableSize().width() / 12;
+
+    auto* openButton = new QPushButton("Open...", this);
     openButton->setFixedWidth(buttonWidth);
-    auto* saveButton = new QPushButton("Save", this);
+    auto* saveButton = new QPushButton("Save...", this);
     saveButton->setFixedWidth(buttonWidth);
-    auto* runButton = new QPushButton("Run", this);
+    auto* runButton = new QPushButton("Run...", this);
     runButton->setFixedWidth(buttonWidth);
 
     // connect buttons
@@ -68,8 +79,7 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     this->setLayout(mainLayout);
 
     // set window size
-    this->setMinimumSize(3300, 600);
-    this->resize(this->width(), 1200);
+    this->resize( QApplication::primaryScreen()->size() );
 }
 
 void MainWidget::changeThreadIndexSlot(int index)
@@ -81,7 +91,7 @@ void MainWidget::changeThreadIndexSlot(int index)
 
     _configs[_configIndex][_threadIndex].objects = _objectCreatorWidget->getObjects();
     _threadIndex = index;
-    _objectCreatorWidget->setObjects(_configs[_configIndex][_threadIndex].objects);
+    _objectCreatorWidget->setObjects(_threadIndex, _configs[_configIndex][_threadIndex].objects);
 }
 
 void MainWidget::addThreadSlot()
@@ -114,7 +124,7 @@ void MainWidget::changeConfigIndexSlot(int index)
 
     _skipUpdateObjectCreator = true;
     _threadsTreeWidget->setThreads(_configs[_configIndex]);
-    _objectCreatorWidget->setObjects(_configs[_configIndex][_threadIndex].objects);
+    _objectCreatorWidget->setObjects(_threadIndex, _configs[_configIndex][_threadIndex].objects);
     _skipUpdateObjectCreator = false;
 }
 
@@ -134,6 +144,27 @@ void MainWidget::removeConfigSlot(int index)
     }
 }
 
+void MainWidget::addActionSlot(const actionContent& action)
+{
+    _actions.emplace_back(action);
+    qDebug() << "add action " << action.thread << " " << action.id << " " << action.pause;
+}
+
+void MainWidget::removeActionSlot(int index)
+{
+    _actions.erase(_actions.begin() + index);
+}
+
+void MainWidget::updateActionsSlot(const std::vector<actionContent>& actions)
+{
+    _actions = actions;
+}
+
+void MainWidget::changeTabSlot(int index)
+{
+    _actionWidget->setActions(_actions);
+}
+
 void MainWidget::openButtonSlot()
 {
     QStringList paths = QFileDialog::getOpenFileNames(this, tr("Open Files"), "/home", "JSON (*.json)");
@@ -148,7 +179,7 @@ void MainWidget::openButtonSlot()
 
 void MainWidget::saveButtonSlot()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/home",
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home",
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if ( dir.isEmpty() )
