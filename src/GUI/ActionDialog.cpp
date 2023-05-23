@@ -74,7 +74,7 @@ actionContent ActionDialog::getAction()
     action.action = "call";
     action.className = _className;
     action.id = _id;
-    action.pause = _pause;
+    action.pause = _pause / 1000.f;
     action.funcName = _funcName;
     action.args = _actionRow->getUserInput().args;
 

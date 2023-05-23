@@ -1,11 +1,11 @@
 #include "MainWidget.h"
 
-
 MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
 {
-    // add first config and thread
+    // add first config, thread and action
     _configs.emplace_back();
     _configs.back().emplace_back();
+    _actions.emplace_back();
 
     // create layouts
     auto* mainLayout = new QVBoxLayout(this);
@@ -37,6 +37,8 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     auto* tabWidget = new QTabWidget(this);
     widgetsLayout->addWidget(tabWidget, 1);
 
+    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeTabSlot(int)));
+
     // add object creator widget
     _objectCreatorWidget.reset(new ObjectCreatorWidget(_threadIndex, this));
 
@@ -48,8 +50,12 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     tabWidget->addTab(_objectCreatorWidget.get(), "Objects");
 
     // add action widget
-    _actionWidget.reset( new ActionWidget(_actions, this) );
+    _actionWidget.reset( new ActionWidget(_actions[_configIndex], this) );
     tabWidget->addTab(_actionWidget.get(), "Actions");
+
+    connect(this, SIGNAL(updateActionWidgetSignal(const std::vector<actionContent>&)),
+            _actionWidget.get(), SLOT(setActionsSlot(const std::vector<actionContent>&)));
+    connect(_actionWidget.get(), SIGNAL(removeActionSignal(int)), this, SLOT(removeActionSlot(int)));
 
     // create buttons
     int buttonWidth = QApplication::primaryScreen()->availableSize().width() / 12;
@@ -132,11 +138,13 @@ void MainWidget::addConfigSlot()
 {
     _configs.emplace_back();
     _configs.back().push_back({0, {}});
+    _actions.emplace_back();
 }
 
 void MainWidget::removeConfigSlot(int index)
 {
     _configs.erase(_configs.begin() + index);
+    _actions.erase(_actions.begin() + index);
 
     if (_configIndex >= _configs.size())
     {
@@ -146,23 +154,22 @@ void MainWidget::removeConfigSlot(int index)
 
 void MainWidget::addActionSlot(const actionContent& action)
 {
-    _actions.emplace_back(action);
-    qDebug() << "add action " << action.thread << " " << action.id << " " << action.pause;
+    _actions[_configIndex].emplace_back(action);
 }
 
 void MainWidget::removeActionSlot(int index)
 {
-    _actions.erase(_actions.begin() + index);
+    _actions[_configIndex].erase(_actions[_configIndex].begin() + index);
 }
 
 void MainWidget::updateActionsSlot(const std::vector<actionContent>& actions)
 {
-    _actions = actions;
+    _actions[_configIndex] = actions;
 }
 
 void MainWidget::changeTabSlot(int index)
 {
-    _actionWidget->setActions(_actions);
+    emit updateActionWidgetSignal(_actions[_configIndex]);
 }
 
 void MainWidget::openButtonSlot()
@@ -171,8 +178,19 @@ void MainWidget::openButtonSlot()
 
     for (auto& path : paths)
     {
-        ConfigParser parser(path);
-        _configs.emplace_back( parser.getThreads() );
+        try
+        {
+            ConfigParser parser(path);
+            _configs.emplace_back( parser.getThreads() );
+            _actions.emplace_back( parser.getActions() );
+        }
+        catch(...)
+        {
+            QErrorMessage errorMessage;
+            errorMessage.showMessage("Can't open file:  " + path);
+            errorMessage.exec();
+        }
+
         emit addConfigSignal( path.mid(path.lastIndexOf("/") + 1).remove(".json") );
     }
 }
@@ -188,7 +206,7 @@ void MainWidget::saveButtonSlot()
     }
 
     ConfigParser parser(dir + "/" + _configsWidget->getConfigName(_configIndex) + ".json");
-    parser.writeConfig(_configs[_configIndex], {});
+    parser.writeConfig(_configs[_configIndex], _actions[_configIndex]);
 }
 
 void MainWidget::runButtonSlot()
@@ -214,7 +232,7 @@ void MainWidget::runButtonSlot()
     }
 
     ConfigParser parser(configName);
-    parser.writeConfig(_configs[_configIndex], {});
+    parser.writeConfig(_configs[_configIndex], _actions[_configIndex]);
 
     _logic.setPaths( {configName} );
     _logic.runProgramInstances();

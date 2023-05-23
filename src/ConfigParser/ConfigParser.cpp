@@ -20,6 +20,7 @@ std::vector<threadContent> ConfigParser::getThreads() try
             objectContent object;
             object.className = objectArr["className"].GetString();
             object.varName = objectArr["varName"].GetString();
+            object.startId = objectArr["startId"].GetInt();
             object.count = objectArr["count"].GetInt();
 
             // read args array
@@ -48,7 +49,7 @@ catch (...)
     throw;
 }
 
-std::vector<actionContent> ConfigParser::getActions()
+std::vector<actionContent> ConfigParser::getActions() try
 {
     std::vector<actionContent> actions;
     auto doc = getParsedDocument();
@@ -57,7 +58,11 @@ std::vector<actionContent> ConfigParser::getActions()
     for (const auto& actionObject : doc["actions"].GetArray())
     {
         actionContent action;
+
+        action.thread = actionObject["thread"].GetInt();
         action.action = actionObject["action"].GetString();
+        action.id = actionObject["id"].GetInt();
+        action.pause = actionObject["pause"].GetDouble();
 
         if ( actionObject.HasMember("className") )
         {
@@ -94,6 +99,10 @@ std::vector<actionContent> ConfigParser::getActions()
 
     return actions;
 }
+catch (...)
+{
+    throw;
+}
 
 void ConfigParser::writeConfig(const std::vector<threadContent>& threads, const std::vector<actionContent>& actions) try
 {
@@ -117,6 +126,7 @@ void ConfigParser::writeConfig(const std::vector<threadContent>& threads, const 
             rapidjson::Value objectVal(rapidjson::kObjectType);
             objectVal.AddMember("className", getValue(object.className, alloc), alloc);
             objectVal.AddMember("varName", getValue(object.varName, alloc), alloc);
+            objectVal.AddMember("startId", object.startId, alloc);
             objectVal.AddMember("count", object.count, alloc);
 
             rapidjson::Value argsArr(rapidjson::kArrayType);
@@ -142,7 +152,11 @@ void ConfigParser::writeConfig(const std::vector<threadContent>& threads, const 
     for (auto& action : actions)
     {
         rapidjson::Value actionObject(rapidjson::kObjectType);
+
+        actionObject.AddMember("thread", action.thread, alloc);
         actionObject.AddMember("action", getValue(action.action, alloc), alloc);
+        actionObject.AddMember("id", action.id, alloc);
+        actionObject.AddMember("pause", action.pause, alloc);
 
         if ( !action.className->isEmpty() )
         {

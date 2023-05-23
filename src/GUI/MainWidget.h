@@ -15,18 +15,18 @@
 #include <QScreen>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QMessageBox>
 #include <QPushButton>
-#include <QSpacerItem>
 #include <QVector>
 #include <QFileDialog>
-#include <QMessageBox>
+#include <QErrorMessage>
 
 #include <memory>
 
 
 class MainWidget : public QWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit MainWidget(MainLogic& logic);
@@ -50,6 +50,7 @@ public slots:
 signals:
     void updateThreadTreeSignal(const std::vector<objectContent>& content);
     void addConfigSignal(const QString& config);
+    void updateActionWidgetSignal(const std::vector<actionContent>& actions);
 
 private:
     MainLogic& _logic;
@@ -63,7 +64,7 @@ private:
     size_t _configIndex = 0;
 
     std::vector<std::vector<threadContent>> _configs;
-    std::vector<actionContent> _actions;
+    std::vector<std::vector<actionContent>> _actions;
 
     bool _skipUpdateObjectCreator = false;
 

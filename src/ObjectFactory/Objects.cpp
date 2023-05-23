@@ -80,7 +80,16 @@ catch (...)
 }
 
 void TRTQueObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
-{}
+{
+    if (funcName == "Write")
+    {
+        //CALL(TRTQue*, Write)();
+    }
+    else
+    {
+        throw std::runtime_error("unknown function name");
+    }
+}
 
 const UniversalString& TRTQueObject::staticTypeName()
 {

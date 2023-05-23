@@ -23,7 +23,7 @@ ActionWidget::ActionWidget(const std::vector<actionContent>& actions, QWidget* p
     this->setLayout(mainLayout);
 }
 
-void ActionWidget::setActions(const std::vector<actionContent>& actions)
+void ActionWidget::setActionsSlot(const std::vector<actionContent>& actions)
 {
     _actionList->clear();
 
@@ -35,9 +35,13 @@ void ActionWidget::setActions(const std::vector<actionContent>& actions)
     }
 }
 
-void ActionWidget::removeSlot(int index)
+void ActionWidget::removeSlot()
 {
-
+    for (auto& item : _actionList->selectedItems())
+    {
+        emit removeActionSignal( _actionList->row(item) );
+        delete _actionList->takeItem( _actionList->row(item) );
+    }
 }
 
 QListWidgetItem* ActionWidget::getItem()

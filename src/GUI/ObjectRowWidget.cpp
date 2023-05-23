@@ -66,6 +66,7 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     // thread spin box
     auto threadSpinBox = new QSpinBox(this);
     threadSpinBox->setValue(action.thread);
+    threadSpinBox->setDisabled(true);
 
     // id label
     auto* idLabel = new QLabel("id =");
@@ -73,27 +74,33 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     // id spin box
     auto idSpinBox = new QSpinBox(this);
     idSpinBox->setValue(action.id);
+    idSpinBox->setDisabled(true);
 
     // action label
     auto* actionLabel = new QLabel("action =");
 
     // action line edit
     auto* actionLineEdit = new QLineEdit(action.action);
-    actionLineEdit->setEnabled(false);
+    actionLineEdit->setDisabled(true);
 
     // pause label
     auto* pauseLabel = new QLabel("pause =");
 
     // pause spin box
     auto* pauseSpinBox = new QSpinBox(this);
+
+    pauseSpinBox->setSuffix(" ms");
+    pauseSpinBox->setRange(0, 100000);
+    pauseSpinBox->setSingleStep(100);
     pauseSpinBox->setValue(action.pause);
+    pauseSpinBox->setDisabled(true);
 
     // function name label
     auto* functionNameLabel = new QLabel("functionName =");
 
     // function name line edit
     auto* functionNameLineEdit = new QLineEdit(action.funcName);
-    functionNameLineEdit->setEnabled(false);
+    functionNameLineEdit->setDisabled(true);
 
     mainLayout->addLayout( getFormLayout(threadLabel, threadSpinBox) );
     mainLayout->addLayout( getFormLayout(idLabel, idSpinBox) );

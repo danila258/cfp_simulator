@@ -22,7 +22,7 @@ public:
     ActionWidget(const std::vector<actionContent>& actions, QWidget* parent = nullptr);
 
 public slots:
-    void setActions(const std::vector<actionContent>& actions);
+    void setActionsSlot(const std::vector<actionContent>& actions);
 
 signals:
     void removeActionSignal(int index);
@@ -36,7 +36,7 @@ private:
     QListWidgetItem* getItem();
 
 private slots:
-    void removeSlot(int index);
+    void removeSlot();
 };
 
 
