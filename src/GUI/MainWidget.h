@@ -11,6 +11,7 @@
 #include "MainLogic.h"
 
 #include <QApplication>
+#include <QSettings>
 #include <QTabWidget>
 #include <QScreen>
 #include <QHBoxLayout>
@@ -53,7 +54,11 @@ signals:
     void updateActionWidgetSignal(const std::vector<actionContent>& actions);
 
 private:
+    void loadSettings();
+    void closeEvent(QCloseEvent* event);
+
     MainLogic& _logic;
+    QSettings _settings;
 
     std::shared_ptr<ObjectCreatorWidget> _objectCreatorWidget;
     std::shared_ptr<ActionWidget> _actionWidget;

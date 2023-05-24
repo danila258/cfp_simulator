@@ -12,6 +12,9 @@ int main(int argc, char* argv[]) try
 
     if ( logic.hasGUI() )
     {
+        QCoreApplication::setOrganizationName("VEGA");
+        QCoreApplication::setApplicationName("cfp_simulator");
+
         QApplication app(argc, argv);
 
         auto* gui = new MainWidget(logic);

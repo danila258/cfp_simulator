@@ -84,8 +84,8 @@ MainWidget::MainWidget(MainLogic& logic) : _logic(logic)
     mainLayout->addLayout(buttonsLayout);
     this->setLayout(mainLayout);
 
-    // set window size
-    this->resize( QApplication::primaryScreen()->size() );
+    // load settings
+    loadSettings();
 }
 
 void MainWidget::changeThreadIndexSlot(int index)
@@ -236,4 +236,25 @@ void MainWidget::runButtonSlot()
 
     _logic.setPaths( {configName} );
     _logic.runProgramInstances();
+}
+
+void MainWidget::loadSettings()
+{
+    QSize fullScreenSize = QApplication::primaryScreen()->size();
+
+    _settings.beginGroup("application condition");
+    QSize appSize = _settings.value("window size", fullScreenSize).toSize();
+    QPoint appPos = _settings.value("window position", QPoint(0, 0)).toPoint();
+    _settings.endGroup();
+
+    resize(appSize);
+    move(appPos);
+}
+
+void MainWidget::closeEvent(QCloseEvent* event)
+{
+    _settings.beginGroup("application condition");
+    _settings.setValue("window size", size());
+    _settings.setValue("window position", pos());
+    _settings.endGroup();
 }
