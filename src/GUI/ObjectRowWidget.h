@@ -13,7 +13,7 @@
 #include <QLabel>
 #include <QDebug>
 #include <QFontMetrics>
-#include <QFont>
+#include <QPalette>
 
 #include <vector>
 #include <memory>
@@ -47,7 +47,7 @@ class ObjectRowWidget : public QWidget
 public:
     ObjectRowWidget(const defaultParam& defaultObj, size_t id, QWidget* parent = nullptr);
     ObjectRowWidget(const defaultParam& defaultObj, size_t id, const objectContent& object, QWidget* parent = nullptr);
-    ObjectRowWidget(const defaultParam& defaultObj, QWidget* parent = nullptr);
+    explicit ObjectRowWidget(const defaultParam& defaultObj, QWidget* parent = nullptr);
     ObjectRowWidget(const actionContent& action, QWidget* parent);
 
     objectContent getUserInput() const;

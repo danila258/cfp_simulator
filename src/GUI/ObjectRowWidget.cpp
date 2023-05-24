@@ -60,6 +60,10 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     classNameLabel->setFixedWidth(findMaxClassNameLen() + 1);
     mainLayout->addWidget(classNameLabel);
 
+    // custom palette
+    QPalette palette = classNameLabel->palette();
+    palette.setColor(QPalette::Disabled, QPalette::Text, palette.color(QPalette::Active, QPalette::Text));
+
     // thread label
     auto* threadLabel = new QLabel("thread =");
 
@@ -67,6 +71,7 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     auto threadSpinBox = new QSpinBox(this);
     threadSpinBox->setValue(action.thread);
     threadSpinBox->setDisabled(true);
+    threadSpinBox->setPalette(palette);
 
     // id label
     auto* idLabel = new QLabel("id =");
@@ -75,6 +80,7 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     auto idSpinBox = new QSpinBox(this);
     idSpinBox->setValue(action.id);
     idSpinBox->setDisabled(true);
+    idSpinBox->setPalette(palette);
 
     // action label
     auto* actionLabel = new QLabel("action =");
@@ -82,6 +88,7 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     // action line edit
     auto* actionLineEdit = new QLineEdit(action.action);
     actionLineEdit->setDisabled(true);
+    actionLineEdit->setPalette(palette);
 
     // pause label
     auto* pauseLabel = new QLabel("pause =");
@@ -92,8 +99,10 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     pauseSpinBox->setSuffix(" ms");
     pauseSpinBox->setRange(0, 100000);
     pauseSpinBox->setSingleStep(100);
+    qDebug() << action.pause;
     pauseSpinBox->setValue(action.pause);
     pauseSpinBox->setDisabled(true);
+    pauseSpinBox->setPalette(palette);
 
     // function name label
     auto* functionNameLabel = new QLabel("functionName =");
@@ -101,6 +110,7 @@ ObjectRowWidget::ObjectRowWidget(const actionContent& action, QWidget* parent)
     // function name line edit
     auto* functionNameLineEdit = new QLineEdit(action.funcName);
     functionNameLineEdit->setDisabled(true);
+    functionNameLineEdit->setPalette(palette);
 
     mainLayout->addLayout( getFormLayout(threadLabel, threadSpinBox) );
     mainLayout->addLayout( getFormLayout(idLabel, idSpinBox) );

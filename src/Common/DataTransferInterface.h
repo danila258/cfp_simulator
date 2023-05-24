@@ -27,7 +27,7 @@ struct actionContent
     UniversalString action;
     UniversalString className;
     size_t id;
-    double pause = 0;
+    size_t pause = 0;
     UniversalString varName;
     UniversalString funcName;
     std::vector<UniversalString> args;

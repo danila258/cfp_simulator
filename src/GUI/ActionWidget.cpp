@@ -47,7 +47,7 @@ void ActionWidget::removeSlot()
 QListWidgetItem* ActionWidget::getItem()
 {
     auto* item = new QListWidgetItem( _actionList.get() );
-    item->setSizeHint(QSize(100, 100));
+    item->setSizeHint( QSize(100, 100) );
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
     return item;
