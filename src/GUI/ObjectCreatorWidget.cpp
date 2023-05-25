@@ -61,7 +61,11 @@ void ObjectCreatorWidget::setObjects(size_t thread, const std::vector<objectCont
 
     for (const auto& object : objects)
     {
-        _objectRowWidgetList->setItemWidget(getItem(), new ObjectRowWidget(findDefault(object.className), _id, object, this));
+        auto* rowWidget = new ObjectRowWidget(findDefault(object.className), _id, object, this);
+        connect(rowWidget, SIGNAL(updateObjectSignal()), SLOT(userInputSlot()));
+        connect(rowWidget, SIGNAL(updateCountSignal()), SLOT(updateCountSlot()));
+
+        _objectRowWidgetList->setItemWidget(getItem(), rowWidget);
         _id += object.count;
     }
 }

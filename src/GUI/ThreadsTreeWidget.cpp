@@ -57,6 +57,12 @@ void ThreadsTreeWidget::updateThreadTreeSlot(const std::vector<objectContent>& c
 {
     QTreeWidgetItem* item = _treeWidget->currentItem();
 
+    // only root items haven't parent
+    if (item->parent() != nullptr)
+    {
+        item = item->parent();
+    }
+
     // delete all children
     for (auto* child : item->takeChildren())
     {
@@ -64,6 +70,7 @@ void ThreadsTreeWidget::updateThreadTreeSlot(const std::vector<objectContent>& c
     }
 
     // add new children
+    qDebug() << "update threads items";
     item->addChildren( getThreadChildItems(item, content) );
 }
 
