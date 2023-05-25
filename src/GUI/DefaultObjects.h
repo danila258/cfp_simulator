@@ -37,7 +37,8 @@ namespace gui
     const static std::unordered_map<std::string, std::vector<defaultParam>> actionMap =
     {
         {"TRTMutex", { {"Lock", {}}, {"Unlock", {}}}},
-        {"TRTQue", { {"Write", {{"len", "5", "int"}}} }},
+        {"TRTQue", { {"Write", {{"len", "5", "int"}}}, {"Read", {{"len", "5", "int"}}} }},
+        {"TRTSysTimer", { {"Start", {{"delay", "100", "int"}}}, {"Stop", {}} }}
     };
 }
 

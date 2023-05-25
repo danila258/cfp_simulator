@@ -83,7 +83,17 @@ void TRTQueObject::call(const UniversalString& funcName, const std::vector<Unive
 {
     if (funcName == "Write")
     {
-        //CALL(TRTQue*, Write)();
+        int len = args[0]->toInt();
+        auto* ptr = new char[len];
+
+        CALL(TRTQue*, Write)(ptr, len);
+    }
+    else if (funcName == "Read")
+    {
+        int len = args[0]->toInt();
+        auto* ptr = new char[len];
+
+        CALL(TRTQue*, Read)(ptr, len);
     }
     else
     {
@@ -108,7 +118,21 @@ catch (...)
 }
 
 void TRTSysTimerObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
-{}
+{
+    if (funcName == "Start")
+    {
+        int delay = args[0]->toInt();
+        CALL(TRTSysTimer*, Start)(delay);
+    }
+    else if (funcName == "Stop")
+    {
+        CALL(TRTSysTimer*, Stop)();
+    }
+    else
+    {
+        throw std::runtime_error("unknown function name");
+    }
+}
 
 const UniversalString& TRTSysTimerObject::staticTypeName()
 {

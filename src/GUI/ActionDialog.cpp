@@ -89,7 +89,7 @@ void ActionDialog::actionSlot(int index)
     }
 
     _actionLayout->removeWidget( _actionRow.get() );
-    _actionRow.reset( new ObjectRowWidget(_defaultActions.front(), this) );
+    _actionRow.reset( new ObjectRowWidget(_defaultActions[index], this) );
     _actionLayout->addWidget( _actionRow.get() );
 
     _funcName = _defaultActions[index].name;
