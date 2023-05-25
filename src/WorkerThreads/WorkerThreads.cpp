@@ -38,6 +38,8 @@ void CreatingObjectsThread::TaskFunc()
         rtlog(INFO) << "Thread-" << _thread.number << " Class-" << action.className->toStdString()
                     << " id-" << action.id << " Action-" << action.funcName->toStdString();
         loggerMutex.unlock();
+
+        MillySleep(action.pause);
     }
 }
 

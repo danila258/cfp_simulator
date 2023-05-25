@@ -132,6 +132,8 @@ void MainWidget::changeConfigIndexSlot(int index)
     _threadsTreeWidget->setThreads(_configs[_configIndex]);
     _objectCreatorWidget->setObjects(_threadIndex, _configs[_configIndex][_threadIndex].objects);
     _skipUpdateObjectCreator = false;
+
+    emit updateActionWidgetSignal(_actions[_configIndex]);
 }
 
 void MainWidget::addConfigSlot()
@@ -183,6 +185,8 @@ void MainWidget::openButtonSlot()
             ConfigParser parser(path);
             _configs.emplace_back( parser.getThreads() );
             _actions.emplace_back( parser.getActions() );
+
+            emit addConfigSignal( path.mid(path.lastIndexOf("/") + 1).remove(".json") );
         }
         catch(...)
         {
@@ -190,8 +194,6 @@ void MainWidget::openButtonSlot()
             errorMessage.showMessage("Can't open file:  " + path);
             errorMessage.exec();
         }
-
-        emit addConfigSignal( path.mid(path.lastIndexOf("/") + 1).remove(".json") );
     }
 }
 

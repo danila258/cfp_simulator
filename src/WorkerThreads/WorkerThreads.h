@@ -9,6 +9,7 @@
 #include "log/TRTLog.h"
 #include "log/TRTLogSender.h"
 #include "task/TRTThread.h"
+#include "rtsys/TRTSys.h"
 
 #include <vector>
 #include <deque>

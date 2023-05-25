@@ -9,6 +9,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 include_directories(${PROJECT_NAME}
                     ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/task
                     ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/log
+                    ${PROJECT_SOURCE_DIR}/lib/RTLib3/header/rtsys
                     )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
