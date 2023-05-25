@@ -23,7 +23,7 @@ void CreatingObjectsThread::TaskFunc()
             _objectMap[id]->call("SetName", {object.varName->toStdString()});
 
             loggerMutex.lock();
-            rtlog(INFO) << "Thread:" << _thread.number << " Create:" << object.varName->toStdString() << " id:" << id;
+            rtlog(INFO) << "Thread-" << _thread.number << " Create-" << object.varName->toStdString() << " id-" << id;
             loggerMutex.unlock();
 
             ++id;
@@ -35,8 +35,8 @@ void CreatingObjectsThread::TaskFunc()
         _objectMap[action.id]->call(action.funcName, action.args);
 
         loggerMutex.lock();
-        rtlog(INFO) << "Thread:" << _thread.number << " Class:" << action.className->toStdString()
-                    << " id:" << action.id << " Action:" << action.funcName->toStdString();
+        rtlog(INFO) << "Thread-" << _thread.number << " Class-" << action.className->toStdString()
+                    << " id-" << action.id << " Action-" << action.funcName->toStdString();
         loggerMutex.unlock();
     }
 }
