@@ -17,6 +17,12 @@ std::vector<threadContent> ConfigParser::getThreads() try
         // read objects array
         for (const auto& objectArr : threadArr["objects"].GetArray())
         {
+            if ( !(objectArr.HasMember("className") && objectArr.HasMember("varName") && objectArr.HasMember("startId")
+                   && objectArr.HasMember("count")) )
+            {
+                throw std::runtime_error("invalid json file");
+            }
+
             objectContent object;
             object.className = objectArr["className"].GetString();
             object.varName = objectArr["varName"].GetString();
@@ -57,6 +63,12 @@ std::vector<actionContent> ConfigParser::getActions() try
     // read actions array
     for (const auto& actionObject : doc["actions"].GetArray())
     {
+        if ( !(actionObject.HasMember("thread") && actionObject.HasMember("action") && actionObject.HasMember("id") &&
+               actionObject.HasMember("pause")) )
+        {
+            throw std::runtime_error("invalid json file");
+        }
+
         actionContent action;
 
         action.thread = actionObject["thread"].GetInt();

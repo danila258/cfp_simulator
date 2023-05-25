@@ -297,3 +297,22 @@ void ObjectRowWidget::addDefaultFields(QHBoxLayout* mainLayout, const defaultPar
 
     this->setLayout(mainLayout);
 }
+
+int static findMaxClassNameLen()
+{
+    QFont font;
+    QFontMetrics metric(font);
+    int maxPixels = 0;
+
+    for (const auto& obj : gui::defaultObjects)
+    {
+        int pixels = metric.width(obj.name + ":");
+
+        if (pixels > maxPixels)
+        {
+            maxPixels = pixels;
+        }
+    }
+
+    return maxPixels;
+}
