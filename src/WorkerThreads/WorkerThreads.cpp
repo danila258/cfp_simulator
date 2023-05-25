@@ -9,8 +9,11 @@ CreatingObjectsThread::CreatingObjectsThread(threadContent& threadConfig, std::v
 
 void CreatingObjectsThread::TaskFunc()
 {
+    // separator for log
+    std::string sep = "     ";
+
     loggerMutex.lock();
-    rtlog(INFO) << "Create thread_" << getThreadNum();
+    rtlog(INFO) << "Create: thread_" << getThreadNum();
     loggerMutex.unlock();
 
     for (auto& object : _thread.objects)
@@ -23,7 +26,7 @@ void CreatingObjectsThread::TaskFunc()
             _objectMap[id]->call("SetName", {object.varName->toStdString()});
 
             loggerMutex.lock();
-            rtlog(INFO) << "Thread-" << _thread.number << " Create-" << object.varName->toStdString() << " id-" << id;
+            rtlog(INFO) << "Thread: " << _thread.number << sep << "Create: " << object.varName->toStdString() << sep << "ID: " << id;
             loggerMutex.unlock();
 
             ++id;
@@ -35,8 +38,8 @@ void CreatingObjectsThread::TaskFunc()
         _objectMap[action.id]->call(action.funcName, action.args);
 
         loggerMutex.lock();
-        rtlog(INFO) << "Thread-" << _thread.number << " Class-" << action.className->toStdString()
-                    << " id-" << action.id << " Action-" << action.funcName->toStdString();
+        rtlog(INFO) << "Thread: " << _thread.number << sep << "Class: " << action.className->toStdString() << sep
+                    << "ID: " << action.id << sep << "Action: " << action.funcName->toStdString();
         loggerMutex.unlock();
 
         MillySleep(action.pause);
@@ -64,21 +67,21 @@ WorkerThreads::WorkerThreads(const std::vector<threadContent>& threadsConfig, co
 
 void WorkerThreads::run()
 {
-    std::unordered_map<size_t, std::vector<actionContent>> actionsMap;
+    std::vector<std::vector<actionContent>> actionsArr{_threadsConfig.size()};
 
-    for (auto& action : _actionsConfig)
+    for (const auto& action : _actionsConfig)
     {
-        actionsMap[action.thread].emplace_back(action);
+        actionsArr[action.thread].emplace_back(action);
     }
 
-    for (auto& threadConfig : _threadsConfig)
+    for (auto& thread : _threadsConfig)
     {
-        _threadPool.emplace_back( std::unique_ptr<CreatingObjectsThread>(new CreatingObjectsThread(threadConfig, actionsMap[threadConfig.number])) );
+        _threadPool.emplace_back( std::unique_ptr<CreatingObjectsThread>(new CreatingObjectsThread(thread, actionsArr[thread.number])) );
 
         if ( !_threadPool.back()->Start() )
         {
             loggerMutex.lock();
-            rtlog(CRITICAL) << "thread_" << threadConfig.number << " was not created";
+            rtlog(CRITICAL) << "Not created: "<< "thread_" << thread.number;
             loggerMutex.unlock();
         }
     }
@@ -88,7 +91,7 @@ void WorkerThreads::run()
         thread->Join();
 
         loggerMutex.lock();
-        rtlog(INFO) << "thread_" << thread->getThreadNum() << " join";
+        rtlog(INFO) << "Join: "<< "thread_" << thread->getThreadNum();
         loggerMutex.unlock();
     }
 }
