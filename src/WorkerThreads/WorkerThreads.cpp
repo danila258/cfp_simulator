@@ -20,6 +20,7 @@ void CreatingObjectsThread::TaskFunc()
         for (size_t count = 0; count < object.count; ++count)
         {
             _objectMap.emplace(id, factory.create(object.className, object.args));
+            _objectMap[id]->call("SetName", {object.varName->toStdString()});
 
             loggerMutex.lock();
             rtlog(INFO) << "Thread:" << _thread.number << " Create:" << object.varName->toStdString() << " id:" << id;
