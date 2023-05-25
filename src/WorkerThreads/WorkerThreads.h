@@ -20,21 +20,23 @@
 class CreatingObjectsThread : public TRTThread
 {
 public:
-    CreatingObjectsThread(threadContent threadConfig);
+    CreatingObjectsThread(threadContent& threadConfig, std::vector<actionContent>& actions);
 
     void TaskFunc() override;
     size_t getThreadNum();
 
 private:
-    threadContent _threadConfig;
-    std::unordered_map<std::string,std::unique_ptr<Object>> _objectMap;
+    const threadContent& _thread;
+    std::vector<actionContent>& _actions;
+
+    std::unordered_map<size_t,std::unique_ptr<Object>> _objectMap;
 };
 
 
 class WorkerThreads
 {
 public:
-    WorkerThreads(std::vector<threadContent> threadsConfig, std::vector<actionContent> actionsConfig);
+    WorkerThreads(const std::vector<threadContent>& threadsConfig, const std::vector<actionContent>& actionsConfig);
     void run();
 
 private:
