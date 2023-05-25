@@ -30,7 +30,11 @@ catch (...)
 
 void TRTMutexObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {
-    if (funcName == "Lock")
+    if (funcName == "SetName")
+    {
+        CALL(TRTMutex*, setName)(args[0]);
+    }
+    else if (funcName == "Lock")
     {
         CALL(TRTMutex*, Lock)();
     }
@@ -61,7 +65,16 @@ catch (...)
 }
 
 void TRTBinSemaphoreObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
-{}
+{
+    if (funcName == "SetName")
+    {
+        CALL(TRTBinSemaphore*, setName)(args[0]);
+    }
+    else
+    {
+        throw std::runtime_error("unknown function name");
+    }
+}
 
 const UniversalString& TRTBinSemaphoreObject::staticTypeName()
 {
@@ -81,7 +94,11 @@ catch (...)
 
 void TRTQueObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {
-    if (funcName == "Write")
+    if (funcName == "SetName")
+    {
+        CALL(TRTQue*, setName)(args[0]);
+    }
+    else if (funcName == "Write")
     {
         int len = args[0]->toInt();
         auto* ptr = new char[len];
@@ -119,7 +136,11 @@ catch (...)
 
 void TRTSysTimerObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
 {
-    if (funcName == "Start")
+    if (funcName == "SetName")
+    {
+        CALL(TRTSysTimer*, setName)(args[0]);
+    }
+    else if (funcName == "Start")
     {
         int delay = args[0]->toInt();
         CALL(TRTSysTimer*, Start)(delay);
@@ -151,7 +172,16 @@ catch (...)
 }
 
 void TRTEventObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
-{}
+{
+    if (funcName == "SetName")
+    {
+        CALL(TRTEvent*, SetName)(args[0]);
+    }
+    else
+    {
+        throw std::runtime_error("unknown function name");
+    }
+}
 
 const UniversalString& TRTEventObject::staticTypeName()
 {
@@ -170,7 +200,16 @@ catch (...)
 }
 
 void TRTCondVarObject::call(const UniversalString& funcName, const std::vector<UniversalString>& args)
-{}
+{
+    if (funcName == "SetName")
+    {
+        CALL(TRTCondVar*, setName)(args[0]);
+    }
+    else
+    {
+        throw std::runtime_error("unknown function name");
+    }
+}
 
 const UniversalString& TRTCondVarObject::staticTypeName()
 {
