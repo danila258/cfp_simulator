@@ -8,6 +8,11 @@ std::vector<threadContent> ConfigParser::getThreads() try
     std::vector<threadContent> threads;
     auto doc = getParsedDocument();
 
+    if ( !doc.HasMember("TRTThread") )
+    {
+        throw std::runtime_error("file hasn't threads");
+    }
+
     // read threads array
     for (const auto& threadArr : doc["TRTThread"].GetArray())
     {
@@ -59,6 +64,11 @@ std::vector<actionContent> ConfigParser::getActions() try
 {
     std::vector<actionContent> actions;
     auto doc = getParsedDocument();
+
+    if ( !doc.HasMember("actions") )
+    {
+        throw std::runtime_error("file hasn't actions");
+    }
 
     // read actions array
     for (const auto& actionObject : doc["actions"].GetArray())
@@ -237,6 +247,12 @@ rapidjson::Document ConfigParser::getParsedDocument()
     sstr << file.rdbuf();
 
     doc.Parse( sstr.str().data() );
+
+    if ( doc.HasParseError() )
+    {
+        throw std::runtime_error("wrong file format");
+    }
+
     return doc;
 }
 
