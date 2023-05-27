@@ -190,7 +190,7 @@ void MainWidget::openButtonSlot()
         }
         catch(...)
         {
-            QErrorMessage errorMessage;
+            QErrorMessage errorMessage(this);
             errorMessage.showMessage("Can't open file:  " + path);
             errorMessage.exec();
         }
