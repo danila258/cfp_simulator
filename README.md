@@ -1,5 +1,5 @@
 # cfp_simulator
-A cross-platform application for creating multithreaded primitives and monitoring them.
+A cross-platform application for creating process with multithreaded primitives and monitoring them.
 
 <p align="center">
    <a href="https://drive.google.com/uc?export=view&id=1QlnQJgYc15AOePnNSAYIRHxnVf0Jt-ZJ">
